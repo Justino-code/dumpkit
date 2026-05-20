@@ -25,11 +25,11 @@ Retorna o `valor` original inalterado - permite encadeamento.
 
 | Opção | Tipo | Padrão | Descrição |
 |-------|------|--------|-----------|
-| `depth` | `number` | `4` | Profundidade máxima de aninhamento |
+| `depth` | `number` | `30` | Profundidade máxima de aninhamento |
 | `colors` | `boolean` | `auto` | `true` = cores ligadas, `false` = desligadas, `auto` = baseado no TTY |
 | `showHidden` | `boolean` | `false` | Mostrar propriedades não enumeráveis |
-| `maxArrayLength` | `number` | `100` | Máximo de itens do array a mostrar |
-| `maxStringLength` | `number` | `1000` | Comprimento máximo da string |
+| `maxArrayLength` | `number` | `1000` | Máximo de itens do array a mostrar |
+| `maxStringLength` | `number` | `5000` | Comprimento máximo da string |
 | `indent` | `number` | `2` | Espaços por nível de indentação |
 | `stream` | `WriteStream` | `stderr` | Stream de saída |
 

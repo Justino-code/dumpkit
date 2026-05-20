@@ -1,9 +1,7 @@
 // src/shared/types/options.ts
 
-import type { DEFAULTS } from '../constants';
-
 export type InspectOptions = {
-  /** Maximum nesting depth (default: 4) */
+  /** Maximum nesting depth (default: 30) */
   depth?: number;
   
   /** Force colors? undefined = auto (TTY), true/false = force */
@@ -12,16 +10,16 @@ export type InspectOptions = {
   /** Show non-enumerable properties (default: false) */
   showHidden?: boolean;
   
-  /** Maximum array items to display (default: 100) */
+  /** Maximum array items to display (default: 1000) */
   maxArrayLength?: number;
   
-  /** Maximum string length to display (default: 1000) */
+  /** Maximum string length to display (default: 5000) */
   maxStringLength?: number;
   
   /** Number of spaces for indentation (default: 2) */
   indent?: number;
   
-  /** Maximum properties to show in object (default: 50) */
+  /** Maximum properties to show in object (default: 200) */
   maxProperties?: number;
 };
 

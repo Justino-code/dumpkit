@@ -4,14 +4,7 @@ import type { MeasureOptions } from '../shared/types/options';
 import { shouldUseColors, createColorizer } from '../shared/utils/color';
 import type { MeasureResult } from '../shared/types/dto';
 
-/**
- * Internal function to format and output measurement result
- */
-function outputMeasure(
-  label: string,
-  durationMs: number,
-  useColors: boolean
-): void {
+function outputMeasure(label: string, durationMs: number, useColors: boolean): void {
   const c = createColorizer(useColors);
   
   let formattedDuration: string;
@@ -27,71 +20,60 @@ function outputMeasure(
   console.error(output);
 }
 
-/**
- * Measure the execution time of a synchronous or asynchronous function
- * 
- * @param label - Identifier for this measurement
- * @param fn - Function to measure (can be sync or async)
- * @param options - Configuration options
- * @returns The return value of the measured function (or Promise)
- * 
- * @example
- * // Synchronous
- * measure('sort-array', () => {
- *   return array.sort();
- * });
- * 
- * @example
- * // Asynchronous
- * await measure('db-query', async () => {
- *   return await db.find({ id: 1 });
- * });
- * 
- * @example
- * // With custom options
- * measure('heavy-op', fn, { colors: false });
- */
+function createMeasureResult(label: string, startTime: number, endTime: number): MeasureResult {
+  return {
+    label,
+    durationMs: endTime - startTime,
+    startTime,
+    endTime,
+  };
+}
+
 export function measure<T>(
   label: string,
   fn: () => T,
   options?: MeasureOptions
-): T;
+): { result: T; measurement: MeasureResult };
 export function measure<T>(
   label: string,
   fn: () => Promise<T>,
   options?: MeasureOptions
-): Promise<T>;
+): Promise<{ result: T; measurement: MeasureResult }>;
 export function measure<T>(
   label: string,
   fn: (() => T) | (() => Promise<T>),
   options?: MeasureOptions
-): T | Promise<T> {
+): { result: T; measurement: MeasureResult } | Promise<{ result: T; measurement: MeasureResult }> {
   const useColors = shouldUseColors(options?.colors);
   const startTime = performance.now();
   
   try {
     const result = fn();
     
-    // Check if result is a Promise (async function)
     if (result instanceof Promise) {
       return result.then((value) => {
         const endTime = performance.now();
         const duration = endTime - startTime;
         outputMeasure(label, duration, useColors);
-        return value;
+        return {
+          result: value,
+          measurement: createMeasureResult(label, startTime, endTime),
+        };
       }).catch((error) => {
         const endTime = performance.now();
         const duration = endTime - startTime;
         outputMeasure(label, duration, useColors);
         throw error;
-      }) as Promise<T>;
+      }) as Promise<{ result: T; measurement: MeasureResult }>;
     }
     
-    // Synchronous result
     const endTime = performance.now();
     const duration = endTime - startTime;
     outputMeasure(label, duration, useColors);
-    return result;
+    return {
+      result: result as T,
+      measurement: createMeasureResult(label, startTime, endTime),
+    };
   } catch (error) {
     const endTime = performance.now();
     const duration = endTime - startTime;

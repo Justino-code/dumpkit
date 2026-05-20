@@ -2,13 +2,13 @@
 
 export const DEFAULTS = {
   /** Maximum nesting depth when inspecting objects */
-  depth: 4,
+  depth: 30,
   
   /** Maximum number of array items to display */
-  maxArrayLength: 100,
+  maxArrayLength: 1000,
   
   /** Maximum string length to display (truncates with ...) */
-  maxStringLength: 1000,
+  maxStringLength: 5000,
   
   /** Force colors? undefined = auto (based on TTY), true/false = force */
   colors: undefined as boolean | undefined,
@@ -20,7 +20,7 @@ export const DEFAULTS = {
   indent: 2,
   
   /** Maximum number of properties to show in an object */
-  maxProperties: 50,
+  maxProperties: 200,
 } as const;
 
 export type Defaults = typeof DEFAULTS;

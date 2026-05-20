@@ -25,11 +25,11 @@ Returns the original `value` unchanged - enables chaining.
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `depth` | `number` | `4` | Maximum nesting depth |
+| `depth` | `number` | `30` | Maximum nesting depth |
 | `colors` | `boolean` | `auto` | `true` = force colors, `false` = no colors, `auto` = TTY-based |
 | `showHidden` | `boolean` | `false` | Show non-enumerable properties |
-| `maxArrayLength` | `number` | `100` | Maximum array items to display |
-| `maxStringLength` | `number` | `1000` | Maximum string length |
+| `maxArrayLength` | `number` | `1000` | Maximum array items to display |
+| `maxStringLength` | `number` | `5000` | Maximum string length |
 | `indent` | `number` | `2` | Spaces per indentation level |
 | `stream` | `WriteStream` | `stderr` | Output stream |
 

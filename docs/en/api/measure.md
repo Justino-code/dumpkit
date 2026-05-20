@@ -5,8 +5,8 @@ Measures execution time of synchronous or asynchronous functions.
 ## Syntax
 
 ```ts
-measure(label: string, fn: () => T, options?: MeasureOptions): T
-measure(label: string, fn: () => Promise<T>, options?: MeasureOptions): Promise<T>
+measure(label: string, fn: () => T, options?: MeasureOptions): { result: T; measurement: MeasureResult }
+measure(label: string, fn: () => Promise<T>, options?: MeasureOptions): Promise<{ result: T; measurement: MeasureResult }>
 ```
 
 ## Parameters
@@ -19,7 +19,9 @@ measure(label: string, fn: () => Promise<T>, options?: MeasureOptions): Promise<
 
 ## Return value
 
-Returns the same value that the measured function returns (or Promise).
+Returns an object with:
+- `result` - The value returned by the measured function
+- `measurement` - Detailed measurement information (label, durationMs, startTime, endTime)
 
 ## Options
 
@@ -37,7 +39,9 @@ function sortArray() {
   return arr.sort();
 }
 
-const result = measure('sorting', () => sortArray());
+const { result, measurement } = measure('sorting', () => sortArray());
+console.log(result);        // sorted array
+console.log(measurement.durationMs); // 12.34
 // Output: [Measure] sorting: 12.34ms
 ```
 
@@ -49,8 +53,17 @@ async function fetchUsers() {
   return response.json();
 }
 
-const users = await measure('api-fetch', () => fetchUsers());
+const { result, measurement } = await measure('api-fetch', () => fetchUsers());
+console.log(result);        // user data
+console.log(measurement.durationMs); // 145.67
 // Output: [Measure] api-fetch: 145.67ms
+```
+
+### Access only the result
+
+```js
+// If you only need the result, you can ignore the measurement
+const { result } = measure('operation', () => heavyCalculation());
 ```
 
 ### Without colors
@@ -63,7 +76,7 @@ measure('operation', fn, { colors: false });
 
 ```js
 // Approach 1: for loop
-measure('for-loop', () => {
+const { measurement: m1 } = measure('for-loop', () => {
   let sum = 0;
   for (let i = 0; i < 1000000; i++) {
     sum += i;
@@ -72,10 +85,12 @@ measure('for-loop', () => {
 });
 
 // Approach 2: reduce
-measure('array-reduce', () => {
+const { measurement: m2 } = measure('array-reduce', () => {
   const arr = Array.from({ length: 1000000 }, (_, i) => i);
   return arr.reduce((acc, val) => acc + val, 0);
 });
+
+console.log(`For-loop: ${m1.durationMs}ms, Reduce: ${m2.durationMs}ms`);
 ```
 
 ## Time formatting

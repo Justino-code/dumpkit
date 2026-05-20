@@ -8,13 +8,13 @@ Opções para a função `inspect()`.
 
 ```ts
 type InspectOptions = {
-  depth?: number;           // Profundidade máxima (padrão: 4)
+  depth?: number;           // Profundidade máxima (padrão: 30)
   colors?: boolean;         // Forçar cores (padrão: auto)
   showHidden?: boolean;     // Mostrar propriedades não enumeráveis (padrão: false)
-  maxArrayLength?: number;  // Máx. itens do array (padrão: 100)
-  maxStringLength?: number; // Máx. comprimento string (padrão: 1000)
+  maxArrayLength?: number;  // Máx. itens do array (padrão: 1000)
+  maxStringLength?: number; // Máx. comprimento string (padrão: 5000)
   indent?: number;          // Espaços por indentação (padrão: 2)
-  maxProperties?: number;   // Máx. propriedades objeto (padrão: 50)
+  maxProperties?: number;   // Máx. propriedades objeto (padrão: 200)
 };
 ```
 

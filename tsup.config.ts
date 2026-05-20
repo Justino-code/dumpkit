@@ -1,5 +1,3 @@
-// tsup.config.ts
-
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
@@ -10,6 +8,11 @@ export default defineConfig({
   splitting: false,
   sourcemap: true,
   minify: false,
-  target: 'node18',
+  target: 'node22',
   outDir: 'dist',
+  outExtension({ format }) {
+    return {
+      js: format === 'esm' ? '.mjs' : '.cjs',
+    };
+  },
 });

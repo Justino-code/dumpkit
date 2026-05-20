@@ -5,8 +5,8 @@ Mede o tempo de execução de funções síncronas ou assíncronas.
 ## Sintaxe
 
 ```ts
-measure(rotulo: string, fn: () => T, opcoes?: MeasureOptions): T
-measure(rotulo: string, fn: () => Promise<T>, opcoes?: MeasureOptions): Promise<T>
+measure(rotulo: string, fn: () => T, opcoes?: MeasureOptions): { result: T; measurement: MeasureResult }
+measure(rotulo: string, fn: () => Promise<T>, opcoes?: MeasureOptions): Promise<{ result: T; measurement: MeasureResult }>
 ```
 
 ## Parâmetros
@@ -19,7 +19,9 @@ measure(rotulo: string, fn: () => Promise<T>, opcoes?: MeasureOptions): Promise<
 
 ## Retorno
 
-Retorna o mesmo valor que a função medida retorna (ou Promise).
+Retorna um objeto com:
+- `result` - O valor retornado pela função medida
+- `measurement` - Informações detalhadas da medição (label, durationMs, startTime, endTime)
 
 ## Opções
 
@@ -37,7 +39,9 @@ function ordenarArray() {
   return arr.sort();
 }
 
-const resultado = measure('ordenacao', () => ordenarArray());
+const { result, measurement } = measure('ordenacao', () => ordenarArray());
+console.log(result);        // array ordenado
+console.log(measurement.durationMs); // 12.34
 // Output: [Measure] ordenacao: 12.34ms
 ```
 
@@ -49,8 +53,17 @@ async function buscarUsuarios() {
   return response.json();
 }
 
-const usuarios = await measure('busca-api', () => buscarUsuarios());
+const { result, measurement } = await measure('busca-api', () => buscarUsuarios());
+console.log(result);        // dados dos usuários
+console.log(measurement.durationMs); // 145.67
 // Output: [Measure] busca-api: 145.67ms
+```
+
+### Aceder apenas ao resultado
+
+```js
+// Se precisas apenas do resultado, podes ignorar a medição
+const { result } = measure('operacao', () => calculoPesado());
 ```
 
 ### Sem cores
@@ -63,7 +76,7 @@ measure('operacao', fn, { colors: false });
 
 ```js
 // Abordagem 1: for loop
-measure('for-loop', () => {
+const { measurement: m1 } = measure('for-loop', () => {
   let soma = 0;
   for (let i = 0; i < 1000000; i++) {
     soma += i;
@@ -72,10 +85,12 @@ measure('for-loop', () => {
 });
 
 // Abordagem 2: reduce
-measure('array-reduce', () => {
+const { measurement: m2 } = measure('array-reduce', () => {
   const arr = Array.from({ length: 1000000 }, (_, i) => i);
   return arr.reduce((acc, val) => acc + val, 0);
 });
+
+console.log(`For-loop: ${m1.durationMs}ms, Reduce: ${m2.durationMs}ms`);
 ```
 
 ## Formatação do tempo

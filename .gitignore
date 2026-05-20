@@ -7,3 +7,6 @@ coverage/
 .env.local
 .vscode/
 .idea/
+*.tgz
+*.zip
+*.gz

@@ -24,29 +24,34 @@ describe('measure', () => {
         return sum;
       };
       
-      const result = measure('sync-test', fn);
+      const { result, measurement } = measure('sync-test', fn);
       
       expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
       const output = consoleErrorSpy.mock.calls[0][0];
       expect(output).toContain('[Measure] sync-test:');
       expect(output).toMatch(/\d+(\.\d+)?(ms|µs|s)/);
       expect(result).toBe(fn());
+      expect(measurement.label).toBe('sync-test');
+      expect(measurement.durationMs).toBeGreaterThanOrEqual(0);
     });
 
-    it('should return the function return value', () => {
+    it('should return the function return value with measurement', () => {
       const fn = () => 42;
       
-      const result = measure('return-test', fn);
+      const { result, measurement } = measure('return-test', fn);
       
       expect(result).toBe(42);
+      expect(measurement.label).toBe('return-test');
+      expect(measurement.durationMs).toBeGreaterThanOrEqual(0);
     });
 
     it('should work with arrow functions', () => {
       const fn = () => 'hello';
       
-      const result = measure('arrow-test', fn);
+      const { result, measurement } = measure('arrow-test', fn);
       
       expect(result).toBe('hello');
+      expect(measurement.label).toBe('arrow-test');
       expect(consoleErrorSpy).toHaveBeenCalled();
     });
 
@@ -85,20 +90,23 @@ describe('measure', () => {
         return 'done';
       };
       
-      const result = await measure('async-test', fn);
+      const { result, measurement } = await measure('async-test', fn);
       
       expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
       const output = consoleErrorSpy.mock.calls[0][0];
       expect(output).toContain('[Measure] async-test:');
       expect(result).toBe('done');
+      expect(measurement.label).toBe('async-test');
+      expect(measurement.durationMs).toBeGreaterThanOrEqual(0);
     });
 
-    it('should return promise result', async () => {
+    it('should return promise result with measurement', async () => {
       const fn = async () => ({ data: 'test' });
       
-      const result = await measure('async-return', fn);
+      const { result, measurement } = await measure('async-return', fn);
       
       expect(result).toEqual({ data: 'test' });
+      expect(measurement.label).toBe('async-return');
     });
 
     it('should propagate errors from async function', async () => {
@@ -114,9 +122,10 @@ describe('measure', () => {
     it('should handle very fast async functions', async () => {
       const fn = async () => 'fast';
       
-      const result = await measure('fast-async', fn);
+      const { result, measurement } = await measure('fast-async', fn);
       
       expect(result).toBe('fast');
+      expect(measurement.durationMs).toBeGreaterThanOrEqual(0);
       expect(consoleErrorSpy).toHaveBeenCalled();
     });
   });
@@ -124,14 +133,12 @@ describe('measure', () => {
   describe('time formatting', () => {
     it('should format sub-millisecond times as microseconds', () => {
       const fn = () => {
-        // Very fast operation
         return 1 + 1;
       };
       
       measure('fast', fn);
       
       const output = consoleErrorSpy.mock.calls[0][0];
-      // Should show µs or ms with decimal
       expect(output).toMatch(/(\d+µs|\d+\.\d+ms)/);
     });
 
@@ -162,7 +169,6 @@ describe('measure', () => {
       measure('seconds-test', fn);
       
       const output = consoleErrorSpy.mock.calls[0][0];
-      // Could be ms or s depending on exact timing
       expect(output).toMatch(/(\d+(\.\d+)?(ms|s))/);
     });
   });
@@ -171,26 +177,29 @@ describe('measure', () => {
     it('should handle empty function', () => {
       const fn = () => {};
       
-      const result = measure('empty', fn);
+      const { result, measurement } = measure('empty', fn);
       
       expect(result).toBeUndefined();
+      expect(measurement.durationMs).toBeGreaterThanOrEqual(0);
       expect(consoleErrorSpy).toHaveBeenCalled();
     });
 
     it('should handle function returning null', () => {
       const fn = () => null;
       
-      const result = measure('null-test', fn);
+      const { result, measurement } = measure('null-test', fn);
       
       expect(result).toBeNull();
+      expect(measurement.durationMs).toBeGreaterThanOrEqual(0);
     });
 
     it('should handle function returning undefined', () => {
       const fn = () => undefined;
       
-      const result = measure('undefined-test', fn);
+      const { result, measurement } = measure('undefined-test', fn);
       
       expect(result).toBeUndefined();
+      expect(measurement.durationMs).toBeGreaterThanOrEqual(0);
     });
 
     it('should work with different label formats', () => {

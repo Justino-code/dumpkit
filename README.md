@@ -73,7 +73,7 @@ Prints the value and calls `process.exit(1)`.
 Returns a formatted string without printing.
 
 Options:
-- `depth?: number` – Maximum nesting depth (default: `4`)
+- `depth?: number` – Maximum nesting depth (default: `30`)
 - `colors?: boolean` – Force colors (default: `true` in TTY)
 - `showHidden?: boolean` – Show non-enumerable properties
 
