@@ -1,6 +1,6 @@
 {
   "name": "dumpkit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Debugging library for Node.js inspired by Laravel's dump() and dd()",
   "main": "dist/index.js",
