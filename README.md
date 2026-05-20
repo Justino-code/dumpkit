@@ -1,14 +1,11 @@
 # dumpkit
 
-> **⚠️ WARNING:** This package is under development. API may change.
-> **Not recommended for use at this time.**
-
 > Debugging library for Node.js inspired by Laravel's `dump()` and `dd()`
 
 <div align="center">
 
 [![npm version](https://img.shields.io/npm/v/dumpkit.svg)](https://www.npmjs.com/package/dumpkit)
-[![license](https://img.shields.io/npm/l/dumpkit.svg)](https://github.com/justino-code/dumpkit/blob/main/LICENSE)
+[![license](https://img.shields.io/github/license/justino-code/dumpkit)](https://github.com/justino-code/dumpkit/blob/main/LICENSE)
 [![node version](https://img.shields.io/node/v/dumpkit.svg)](https://nodejs.org)
 [![build status](https://img.shields.io/github/actions/workflow/status/justino-code/dumpkit/docs.yml?branch=main)](https://github.com/justino-code/dumpkit/actions)
 [![coverage](https://img.shields.io/codecov/c/github/justino-code/dumpkit)](https://codecov.io/gh/justino-code/dumpkit)
