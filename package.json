@@ -1,0 +1,55 @@
+{
+  "name": "nodedump",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Debugging library for Node.js inspired by Laravel's dump() and dd()",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts --clean",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
+    "prepublishOnly": "yarn build"
+  },
+  "keywords": [
+    "debug",
+    "dump",
+    "dd",
+    "inspect",
+    "debugging",
+    "laravel",
+    "nodejs",
+    "development",
+    "typescript"
+  ],
+  "author": "Justino Contingo",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@vitest/coverage-v8": "^1.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

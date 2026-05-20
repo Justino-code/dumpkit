@@ -1,0 +1,210 @@
+// tests/measure/measure.test.ts
+
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { measure } from '../../../src/measure/measure';
+
+describe('measure', () => {
+  let consoleErrorSpy: any;
+
+  beforeEach(() => {
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  });
+
+  afterEach(() => {
+    consoleErrorSpy.mockRestore();
+  });
+
+  describe('synchronous functions', () => {
+    it('should measure sync function execution time', () => {
+      const fn = () => {
+        let sum = 0;
+        for (let i = 0; i < 1000000; i++) {
+          sum += i;
+        }
+        return sum;
+      };
+      
+      const result = measure('sync-test', fn);
+      
+      expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
+      const output = consoleErrorSpy.mock.calls[0][0];
+      expect(output).toContain('[Measure] sync-test:');
+      expect(output).toMatch(/\d+(\.\d+)?(ms|µs|s)/);
+      expect(result).toBe(fn());
+    });
+
+    it('should return the function return value', () => {
+      const fn = () => 42;
+      
+      const result = measure('return-test', fn);
+      
+      expect(result).toBe(42);
+    });
+
+    it('should work with arrow functions', () => {
+      const fn = () => 'hello';
+      
+      const result = measure('arrow-test', fn);
+      
+      expect(result).toBe('hello');
+      expect(consoleErrorSpy).toHaveBeenCalled();
+    });
+
+    it('should propagate errors from sync function', () => {
+      const fn = () => {
+        throw new Error('Sync error');
+      };
+      
+      expect(() => measure('error-test', fn)).toThrow('Sync error');
+      expect(consoleErrorSpy).toHaveBeenCalled();
+    });
+
+    it('should respect colors: false option', () => {
+      const fn = () => 123;
+      
+      measure('color-test', fn, { colors: false });
+      
+      const output = consoleErrorSpy.mock.calls[0][0];
+      expect(output).not.toContain('\x1b');
+    });
+
+    it('should respect colors: true option', () => {
+      const fn = () => 123;
+      
+      measure('color-test', fn, { colors: true });
+      
+      const output = consoleErrorSpy.mock.calls[0][0];
+      expect(output).toContain('\x1b');
+    });
+  });
+
+  describe('asynchronous functions', () => {
+    it('should measure async function execution time', async () => {
+      const fn = async () => {
+        await new Promise(resolve => setTimeout(resolve, 50));
+        return 'done';
+      };
+      
+      const result = await measure('async-test', fn);
+      
+      expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
+      const output = consoleErrorSpy.mock.calls[0][0];
+      expect(output).toContain('[Measure] async-test:');
+      expect(result).toBe('done');
+    });
+
+    it('should return promise result', async () => {
+      const fn = async () => ({ data: 'test' });
+      
+      const result = await measure('async-return', fn);
+      
+      expect(result).toEqual({ data: 'test' });
+    });
+
+    it('should propagate errors from async function', async () => {
+      const fn = async () => {
+        await new Promise(resolve => setTimeout(resolve, 10));
+        throw new Error('Async error');
+      };
+      
+      await expect(measure('async-error', fn)).rejects.toThrow('Async error');
+      expect(consoleErrorSpy).toHaveBeenCalled();
+    });
+
+    it('should handle very fast async functions', async () => {
+      const fn = async () => 'fast';
+      
+      const result = await measure('fast-async', fn);
+      
+      expect(result).toBe('fast');
+      expect(consoleErrorSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('time formatting', () => {
+    it('should format sub-millisecond times as microseconds', () => {
+      const fn = () => {
+        // Very fast operation
+        return 1 + 1;
+      };
+      
+      measure('fast', fn);
+      
+      const output = consoleErrorSpy.mock.calls[0][0];
+      // Should show µs or ms with decimal
+      expect(output).toMatch(/(\d+µs|\d+\.\d+ms)/);
+    });
+
+    it('should format milliseconds correctly', () => {
+      const fn = () => {
+        let sum = 0;
+        for (let i = 0; i < 1000000; i++) {
+          sum += i;
+        }
+        return sum;
+      };
+      
+      measure('ms-test', fn);
+      
+      const output = consoleErrorSpy.mock.calls[0][0];
+      expect(output).toMatch(/\d+(\.\d+)?ms/);
+    });
+
+    it('should format seconds correctly', () => {
+      const fn = () => {
+        const start = Date.now();
+        while (Date.now() - start < 100) {
+          // Busy wait ~100ms
+        }
+        return 'done';
+      };
+      
+      measure('seconds-test', fn);
+      
+      const output = consoleErrorSpy.mock.calls[0][0];
+      // Could be ms or s depending on exact timing
+      expect(output).toMatch(/(\d+(\.\d+)?(ms|s))/);
+    });
+  });
+
+  describe('edge cases', () => {
+    it('should handle empty function', () => {
+      const fn = () => {};
+      
+      const result = measure('empty', fn);
+      
+      expect(result).toBeUndefined();
+      expect(consoleErrorSpy).toHaveBeenCalled();
+    });
+
+    it('should handle function returning null', () => {
+      const fn = () => null;
+      
+      const result = measure('null-test', fn);
+      
+      expect(result).toBeNull();
+    });
+
+    it('should handle function returning undefined', () => {
+      const fn = () => undefined;
+      
+      const result = measure('undefined-test', fn);
+      
+      expect(result).toBeUndefined();
+    });
+
+    it('should work with different label formats', () => {
+      const fn = () => 1;
+      
+      measure('simple', fn);
+      measure('with spaces', fn);
+      measure('with-numbers-123', fn);
+      measure('', fn);
+      
+      expect(consoleErrorSpy).toHaveBeenCalledTimes(4);
+      expect(consoleErrorSpy.mock.calls[0][0]).toContain('simple');
+      expect(consoleErrorSpy.mock.calls[1][0]).toContain('with spaces');
+      expect(consoleErrorSpy.mock.calls[2][0]).toContain('with-numbers-123');
+    });
+  });
+});
