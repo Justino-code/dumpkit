@@ -10,8 +10,6 @@
 [![build status](https://img.shields.io/github/actions/workflow/status/justino-code/dumpkit/docs.yml?branch=main)](https://github.com/justino-code/dumpkit/actions)
 [![coverage](https://img.shields.io/codecov/c/github/justino-code/dumpkit)](https://codecov.io/gh/justino-code/dumpkit)
 [![typescript](https://img.shields.io/badge/TypeScript-Ready-blue)](https://www.typescriptlang.org)
-[![status](https://img.shields.io/badge/status-alpha-orange)](https://github.com/justino-code/dumpkit)
-
 </div>
 
 **Zero dependencies · Zero config · Simple by design**
