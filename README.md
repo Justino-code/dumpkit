@@ -8,7 +8,6 @@
 <div align="center">
 
 [![npm version](https://img.shields.io/npm/v/dumpkit.svg)](https://www.npmjs.com/package/dumpkit)
-[![npm downloads](https://img.shields.io/npm/dm/dumpkit.svg)](https://www.npmjs.com/package/dumpkit)
 [![license](https://img.shields.io/npm/l/dumpkit.svg)](https://github.com/justino-code/dumpkit/blob/main/LICENSE)
 [![node version](https://img.shields.io/node/v/dumpkit.svg)](https://nodejs.org)
 [![build status](https://img.shields.io/github/actions/workflow/status/justino-code/dumpkit/docs.yml?branch=main)](https://github.com/justino-code/dumpkit/actions)

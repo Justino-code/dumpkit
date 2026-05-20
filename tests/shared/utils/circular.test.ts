@@ -37,20 +37,21 @@ describe('CircularDetector', () => {
   });
 
   describe('get', () => {
-    it('should return circular marker and info', () => {
+    it('should return circular marker with current path', () => {
       const obj = {};
-      detector.add(obj, 'root');
+      detector.add(obj, 'user.profile');
       
-      const result = detector.get(obj, 'current.path');
+      const result = detector.get(obj, 'user.profile.address');
       
       expect(result.marker).toBe('[Circular *1]');
       expect(result.refId).toBe(1);
-      expect(result.originalPath).toBe('root');
+      expect(result.originalPath).toBe('user.profile');
+      expect(result.currentPath).toBe('user.profile.address');
     });
 
     it('should throw for untracked objects', () => {
       const obj = {};
-      expect(() => detector.get(obj, 'path')).toThrow();
+      expect(() => detector.get(obj, 'path')).toThrow('Object not tracked by CircularDetector');
     });
   });
 
@@ -72,24 +73,27 @@ describe('createCircularDetector', () => {
     const obj: any = {};
     obj.self = obj;
     
-    const result = detector.check(obj);
-    expect(result.isCircular).toBe(false); // First time
+    const result = detector.check(obj, 'root');
+    expect(result.isCircular).toBe(false);
     
-    const result2 = detector.check(obj.self);
+    const result2 = detector.check(obj.self, 'root.self');
     expect(result2.isCircular).toBe(true);
     expect(result2.refId).toBe(1);
+    expect(result2.originalPath).toBe('root');
+    expect(result2.marker).toBe('[Circular *1]');
   });
 
   it('should reset correctly', () => {
     const detector = createCircularDetector();
     const obj = {};
     
-    detector.check(obj);
-    const result = detector.check(obj);
+    detector.check(obj, 'path1');
+    const result = detector.check(obj, 'path2');
     expect(result.isCircular).toBe(true);
+    expect(result.originalPath).toBe('path1');
     
     detector.reset();
-    const result2 = detector.check(obj);
+    const result2 = detector.check(obj, 'path3');
     expect(result2.isCircular).toBe(false);
   });
 });

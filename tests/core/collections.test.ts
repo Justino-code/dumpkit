@@ -8,9 +8,9 @@ import {
   formatWeakMap,
   formatWeakSet,
   formatTypedArray,
-} from '../../../src/core/collections';
-import { CircularDetector } from '../../../src/shared/utils/circular';
-import type { ResolvedFormatOptions } from '../../../src/shared/types/dto';
+} from '../../src/core/collections';
+import { CircularDetector } from '../../src/shared/utils/circular';
+import type { ResolvedFormatOptions } from '../../src/shared/types/dto';
 
 const defaultOptions: ResolvedFormatOptions = {
   depth: 4,

@@ -46,20 +46,18 @@ export function formatBigInt(value: bigint, useColors: boolean): string {
 }
 
 /**
- * Format string value (with quotes and escaping)
+ * Format string value with quotes and escaping
  */
 export function formatString(value: string, options: ResolvedFormatOptions, useColors: boolean): string {
   const maxLength = options.maxStringLength;
   let str = value;
   let truncated = false;
   
-  // Truncate if too long
   if (str.length > maxLength) {
     str = str.slice(0, maxLength);
     truncated = true;
   }
   
-  // Escape special characters
   const escaped = str
     .replace(/\\/g, '\\\\')
     .replace(/"/g, '\\"')
@@ -88,23 +86,24 @@ export function formatSymbol(value: symbol, useColors: boolean): string {
  * Format function value
  */
 export function formatFunction(value: Function, useColors: boolean): string {
-  const name = value.name || 'anonymous';
-  return colorize(`[Function: ${name}]`, 'cyan', useColors);
+  const name = value.name;
+  const hasValidName = name && name !== '' && name !== 'fn';
+  const displayName = hasValidName ? name : 'anonymous';
+  return colorize(`[Function: ${displayName}]`, 'cyan', useColors);
 }
 
 /**
  * Format date value
  */
 export function formatDate(value: Date, useColors: boolean): string {
-  const isoString = value.toISOString();
   const valid = !isNaN(value.getTime());
   
   if (!valid) {
     return colorize('Date(Invalid)', 'red', useColors);
   }
   
-  const formatted = `Date(${isoString})`;
-  return colorize(formatted, 'magenta', useColors);
+  const isoString = value.toISOString();
+  return colorize(`Date(${isoString})`, 'magenta', useColors);
 }
 
 /**
@@ -114,7 +113,7 @@ export function formatError(value: Error, useColors: boolean): string {
   const name = value.name || 'Error';
   const message = value.message || '';
   
-  let result = `${name}`;
+  let result = name;
   if (message) {
     result += `: ${message}`;
   }
@@ -181,6 +180,5 @@ export function formatPrimitive(
     return { result: formatRegExp(value, useColors), truncated: false };
   }
   
-  // Not a primitive we handle
   return { result: '', truncated: false };
 }

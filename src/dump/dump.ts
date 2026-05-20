@@ -1,7 +1,7 @@
 // src/dump/dump.ts
 
 import { inspect } from '../core/inspect';
-import { writeToStream } from './renderer';
+import { writeToStream } from './render';
 import type { DumpOptions } from '../shared/types/options';
 
 /**

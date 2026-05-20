@@ -1,6 +1,4 @@
-// tests/shared/utils/color.test.ts
-
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { shouldUseColors, colorize, createColorizer, COLORS } from '../../../src/shared/utils/color';
 
 describe('color', () => {
@@ -14,18 +12,38 @@ describe('color', () => {
     });
 
     it('should auto-detect based on stderr TTY when forceColor is undefined', () => {
-      const originalIsTTY = process.stderr.isTTY;
+      // Verificar se isTTY existe
+      const hasTTY = 'isTTY' in process.stderr;
       
-      // Mock TTY = true
-      Object.defineProperty(process.stderr, 'isTTY', { value: true });
-      expect(shouldUseColors(undefined)).toBe(true);
-      
-      // Mock TTY = false
-      Object.defineProperty(process.stderr, 'isTTY', { value: false });
-      expect(shouldUseColors(undefined)).toBe(false);
-      
-      // Restore
-      Object.defineProperty(process.stderr, 'isTTY', { value: originalIsTTY });
+      if (hasTTY) {
+        // Se existir, testar com mock
+        const originalValue = process.stderr.isTTY;
+        
+        // Mock via Object.defineProperty com configurable: true
+        Object.defineProperty(process.stderr, 'isTTY', {
+          value: true,
+          configurable: true,
+          writable: true
+        });
+        expect(shouldUseColors(undefined)).toBe(true);
+        
+        Object.defineProperty(process.stderr, 'isTTY', {
+          value: false,
+          configurable: true,
+          writable: true
+        });
+        expect(shouldUseColors(undefined)).toBe(false);
+        
+        // Restaurar
+        Object.defineProperty(process.stderr, 'isTTY', {
+          value: originalValue,
+          configurable: true,
+          writable: true
+        });
+      } else {
+        // Se não existir, o comportamento padrão deve ser false
+        expect(shouldUseColors(undefined)).toBe(false);
+      }
     });
   });
 

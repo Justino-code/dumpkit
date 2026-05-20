@@ -1,9 +1,9 @@
 // tests/core/object.test.ts
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { formatObject } from '../../../src/core/object';
-import { CircularDetector } from '../../../src/shared/utils/circular';
-import type { ResolvedFormatOptions } from '../../../src/shared/types/dto';
+import { formatObject } from '../../src/core/object';
+import { CircularDetector } from '../../src/shared/utils/circular';
+import type { ResolvedFormatOptions } from '../../src/shared/types/dto';
 
 const defaultOptions: ResolvedFormatOptions = {
   depth: 4,
@@ -72,18 +72,39 @@ describe('object', () => {
       expect(result.result).toContain('[Circular *1]');
     });
 
-    it('should format objects with numeric keys', () => {
-      const obj = { '123': 'numeric', 'abc': 'string' };
+    it('should format numeric keys without quotes', () => {
+      const obj = { '123': 'numeric', '456': 'value' };
       const result = formatObject(obj, defaultOptions, false, 4, circularDetector, 'root');
-      expect(result.result).toContain('"123": "numeric"');
-      expect(result.result).toContain('abc: "string"');
+      expect(result.result).toContain('123: "numeric"');
+      expect(result.result).not.toContain('"123"');
     });
 
-    it('should format objects with special characters in keys', () => {
+    it('should format valid identifiers without quotes', () => {
+      const obj = { abc: 'value', _valid: 'test', $valid: 'test' };
+      const result = formatObject(obj, defaultOptions, false, 4, circularDetector, 'root');
+      expect(result.result).toContain('abc: "value"');
+      expect(result.result).toContain('_valid: "test"');
+      expect(result.result).toContain('$valid: "test"');
+      expect(result.result).not.toContain('"abc"');
+    });
+
+    it('should format special keys with quotes', () => {
       const obj = { 'my-key': 'value', 'hello world': 'foo' };
       const result = formatObject(obj, defaultOptions, false, 4, circularDetector, 'root');
       expect(result.result).toContain('"my-key": "value"');
       expect(result.result).toContain('"hello world": "foo"');
+    });
+
+    it('should format mixed key types correctly', () => {
+      const obj = {
+        123: 'numeric',
+        name: 'John',
+        'special-key': 'special'
+      };
+      const result = formatObject(obj, defaultOptions, false, 4, circularDetector, 'root');
+      expect(result.result).toContain('123: "numeric"');
+      expect(result.result).toContain('name: "John"');
+      expect(result.result).toContain('"special-key": "special"');
     });
 
     it('should show constructor name for non-plain objects', () => {

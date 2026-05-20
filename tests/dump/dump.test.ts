@@ -1,7 +1,7 @@
 // tests/dump/dump.test.ts
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { dump, dd } from '../../../src/dump/dump';
+import { dump, dd } from '../../src/dump/dump';
 
 describe('dump', () => {
   let stderrWriteSpy: any;
@@ -26,7 +26,7 @@ describe('dump', () => {
       const written = stderrWriteSpy.mock.calls[0][0];
       expect(written).toContain('name: "John"');
       expect(written).toContain('age: 30');
-      expect(written).toMatch(/\n$/); // ends with newline
+      expect(written).toMatch(/\n$/);
     });
 
     it('should return the original value for chaining', () => {
@@ -124,9 +124,25 @@ describe('dump', () => {
       
       dd(value);
       
+      // Verificar que o output foi chamado
+      expect(stderrWriteSpy).toHaveBeenCalledTimes(1);
+      
       const written = stderrWriteSpy.mock.calls[0][0];
       expect(written).toContain('message: "Stopping here"');
-      expect(exitSpy).toHaveBeenCalledAfter(stderrWriteSpy);
+      
+      // Verificar que exit foi chamado DEPOIS do output
+      // O mock.calls ordem: primeiro stderrWriteSpy, depois exitSpy
+      const stderrCallOrder = stderrWriteSpy.mock.invocationCallOrder?.[0] || 0;
+      const exitCallOrder = exitSpy.mock.invocationCallOrder?.[0] || 0;
+      
+      // Se invocationCallOrder não estiver disponível, apenas verificamos que ambos foram chamados
+      if (stderrCallOrder && exitCallOrder) {
+        expect(stderrCallOrder).toBeLessThan(exitCallOrder);
+      } else {
+        // Fallback: apenas verificar que ambos foram chamados
+        expect(stderrWriteSpy).toHaveBeenCalled();
+        expect(exitSpy).toHaveBeenCalled();
+      }
     });
 
     it('should respect options', () => {

@@ -19,19 +19,16 @@ export function formatArray(
   const maxLength = options.maxArrayLength;
   const currentIndent = ' '.repeat(options.indent * (options.depth - depth + 1));
   
-  // Check if we've reached max depth
   if (depth <= 0) {
     return { result: colorize('[Array]', 'gray', useColors), truncated: true };
   }
   
-  // Check for circular reference
   if (circularDetector.has(value)) {
     const circular = circularDetector.get(value, path);
     return { result: colorize(circular.marker, 'yellow', useColors), truncated: true };
   }
   
-  // Register this array
-  const refId = circularDetector.add(value, path);
+  circularDetector.add(value, path);
   
   const length = value.length;
   const itemsToShow = Math.min(length, maxLength);
@@ -72,18 +69,15 @@ export function formatMap(
   circularDetector: CircularDetector,
   path: string
 ): { result: string; truncated: boolean } {
-  // Check if we've reached max depth
   if (depth <= 0) {
     return { result: colorize('[Map]', 'gray', useColors), truncated: true };
   }
   
-  // Check for circular reference
   if (circularDetector.has(value)) {
     const circular = circularDetector.get(value, path);
     return { result: colorize(circular.marker, 'yellow', useColors), truncated: true };
   }
   
-  // Register this map
   circularDetector.add(value, path);
   
   const size = value.size;
@@ -134,18 +128,15 @@ export function formatSet(
   circularDetector: CircularDetector,
   path: string
 ): { result: string; truncated: boolean } {
-  // Check if we've reached max depth
   if (depth <= 0) {
     return { result: colorize('[Set]', 'gray', useColors), truncated: true };
   }
   
-  // Check for circular reference
   if (circularDetector.has(value)) {
     const circular = circularDetector.get(value, path);
     return { result: colorize(circular.marker, 'yellow', useColors), truncated: true };
   }
   
-  // Register this set
   circularDetector.add(value, path);
   
   const size = value.size;
@@ -185,14 +176,14 @@ export function formatSet(
 /**
  * Format WeakMap (cannot iterate, just show type)
  */
-export function formatWeakMap(value: WeakMap<object, unknown>, useColors: boolean): string {
+export function formatWeakMap(_value: WeakMap<object, unknown>, useColors: boolean): string {
   return colorize('WeakMap { <items cannot be iterated> }', 'gray', useColors);
 }
 
 /**
  * Format WeakSet (cannot iterate, just show type)
  */
-export function formatWeakSet(value: WeakSet<object>, useColors: boolean): string {
+export function formatWeakSet(_value: WeakSet<object>, useColors: boolean): string {
   return colorize('WeakSet { <items cannot be iterated> }', 'gray', useColors);
 }
 
@@ -208,24 +199,19 @@ export function formatTypedArray(
   path: string
 ): { result: string; truncated: boolean } {
   const constructorName = value.constructor.name;
-  const length = 'length' in value ? (value as { length: number }).length : 0;
   
-  // Check if we've reached max depth
   if (depth <= 0) {
     return { result: colorize(`[${constructorName}]`, 'gray', useColors), truncated: true };
   }
   
-  // Check for circular reference
   if (circularDetector.has(value as unknown as object)) {
     const circular = circularDetector.get(value as unknown as object, path);
     return { result: colorize(circular.marker, 'yellow', useColors), truncated: true };
   }
   
-  // Convert to regular array for display
   const array = Array.from(value as unknown as Iterable<number>);
   const result = formatArray(array, options, useColors, depth, circularDetector, path);
   
-  // Prefix with type name
   return {
     result: `${constructorName} ${result.result}`,
     truncated: result.truncated,

@@ -12,12 +12,8 @@ function getPropertyKeys(obj: object, showHidden: boolean): (string | symbol)[] 
   const keys: (string | symbol)[] = Object.keys(obj);
   
   if (showHidden) {
-    // Add symbol properties
     const symbols = Object.getOwnPropertySymbols(obj);
     keys.push(...symbols);
-    
-    // Add non-enumerable string properties?
-    // This would be more expensive, skip for now
   }
   
   return keys;
@@ -33,7 +29,7 @@ function isNumericIndex(key: string | symbol): boolean {
 }
 
 /**
- * Format a property key (for object output)
+ * Format a property key for object output
  */
 function formatKey(key: string | symbol, useColors: boolean): string {
   if (typeof key === 'symbol') {
@@ -41,12 +37,18 @@ function formatKey(key: string | symbol, useColors: boolean): string {
     return colorize(`[Symbol(${desc})]`, 'cyan', useColors);
   }
   
-  // Valid identifier? If not, wrap in quotes
+  // Chaves numéricas não precisam de aspas
+  if (isNumericIndex(key)) {
+    return colorize(key, 'blue', useColors);
+  }
+  
+  // Identificadores válidos não precisam de aspas
   const isValidIdentifier = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key);
   if (isValidIdentifier) {
     return colorize(key, 'blue', useColors);
   }
   
+  // Strings com espaços ou caracteres especiais vão entre aspas
   return colorize(`"${key}"`, 'green', useColors);
 }
 
@@ -61,19 +63,16 @@ export function formatObject(
   circularDetector: CircularDetector,
   path: string
 ): { result: string; truncated: boolean } {
-  // Check if we've reached max depth
   if (depth <= 0) {
     const constructorName = value.constructor?.name || 'Object';
     return { result: colorize(`[${constructorName}]`, 'gray', useColors), truncated: true };
   }
   
-  // Check for circular reference
   if (circularDetector.has(value)) {
     const circular = circularDetector.get(value, path);
     return { result: colorize(circular.marker, 'yellow', useColors), truncated: true };
   }
   
-  // Register this object
   circularDetector.add(value, path);
   
   const keys = getPropertyKeys(value, options.showHidden);
@@ -97,8 +96,6 @@ export function formatObject(
     const key = keys[i];
     const descriptor = Object.getOwnPropertyDescriptor(value, key);
     
-    // Skip if it's a getter without a value and we're not showing getters
-    // For now, just try to get the value
     let propValue: unknown;
     let isGetter = false;
     

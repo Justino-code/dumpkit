@@ -1,7 +1,7 @@
 // tests/measure/measure.test.ts
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { measure } from '../../../src/measure/measure';
+import { measure } from '../../src/measure/measure';
 
 describe('measure', () => {
   let consoleErrorSpy: any;

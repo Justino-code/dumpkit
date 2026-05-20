@@ -1,7 +1,7 @@
 // tests/core/inspect.test.ts
 
 import { describe, it, expect } from 'vitest';
-import { inspect } from '../../../src/core/inspect';
+import { inspect } from '../../src/core/inspect';
 
 describe('inspect', () => {
   it('should return formatted string for primitive values', () => {
@@ -76,7 +76,6 @@ describe('inspect', () => {
     
     const result = inspect(obj);
     expect(result).toContain('[Circular *1]');
-    expect(result).not.toThrow();
   });
 
   it('should format Date objects', () => {
