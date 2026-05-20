@@ -1,7 +1,7 @@
 # nodedump
 
-> **⚠️ AVISO:** Este pacote está em desenvolvimento. API pode sofrer alterações.
-**Não recomendado para uso no momento.**
+> **⚠️ WARNING:** This package is under development. API may change.
+> **Not recommended for production use at this time.**
 
 > Debugging library for Node.js inspired by Laravel's `dump()` and `dd()`
 
