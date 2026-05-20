@@ -18,15 +18,15 @@
 
 ## Features
 
-- 🚀 **dump()** – Display structured values instantly
-- 🛑 **dd()** – Dump and die (exits process)
-- 🔍 **inspect()** – Get formatted string without printing
-- 📍 **trace()** – Show stack trace with location
-- ⏱️ **measure()** – Time sync/async execution
-- 🔄 **Circular reference safe**
-- 📦 **Map, Set, Date, Error, RegExp support**
-- 🎨 **Colors with auto-detection (or force on/off)**
-- 📚 **ESM + CommonJS**
+- **dump()** – Display structured values instantly
+- **dd()** – Dump and die (exits process)
+- **inspect()** – Get formatted string without printing
+- **trace()** – Show stack trace with location
+- **measure()** – Time sync/async execution
+- **Circular reference safe**
+- **Map, Set, Date, Error, RegExp support**
+- **Colors with auto-detection (or force on/off)**
+- **ESM + CommonJS**
 
 ## Installation
 
