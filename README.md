@@ -1,5 +1,8 @@
 # nodedump
 
+> **⚠️ AVISO:** Este pacote está em desenvolvimento. API pode sofrer alterações.
+**Não recomendado para uso no momento.**
+
 > Debugging library for Node.js inspired by Laravel's `dump()` and `dd()`
 
 <div align="center">
@@ -11,6 +14,7 @@
 [![build status](https://img.shields.io/github/actions/workflow/status/justino-code/nodedump/docs.yml?branch=main)](https://github.com/justino-code/nodedump/actions)
 [![coverage](https://img.shields.io/codecov/c/github/justino-code/nodedump)](https://codecov.io/gh/justino-code/nodedump)
 [![typescript](https://img.shields.io/badge/TypeScript-Ready-blue)](https://www.typescriptlang.org)
+[![status](https://img.shields.io/badge/status-alpha-orange)](https://github.com/justino-code/nodedump)
 
 </div>
 
