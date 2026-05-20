@@ -60,9 +60,6 @@ yarn install
 # Run tests
 yarn test
 
-# Run tests in watch mode
-yarn test --watch
-
 # Build the project
 yarn build
 

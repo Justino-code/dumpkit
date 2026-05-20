@@ -1,5 +1,3 @@
-# .github/workflows/docs.yml
-
 name: Deploy VitePress site to GitHub Pages
 
 on:
