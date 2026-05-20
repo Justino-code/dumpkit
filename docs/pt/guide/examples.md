@@ -47,7 +47,7 @@ dump(config);
 
 ## Referências Circulares
 
-O nodedump lida automaticamente com objetos que referenciam a si próprios:
+O dumpkit lida automaticamente com objetos que referenciam a si próprios:
 
 ```js
 const pessoa = { nome: 'João' };
@@ -158,7 +158,7 @@ dump(dadosProfundos, { depth: 2 });
 ### Limpar output para testes
 
 ```js
-import { inspect } from 'nodedump';
+import { inspect } from 'dumpkit';
 
 // Num ficheiro de teste
 const resultado = funcaoComplexa();
@@ -171,7 +171,7 @@ expect(output).toContain('valor-esperado');
 ### Enviar debug para ficheiro
 
 ```js
-import { inspect } from 'nodedump';
+import { inspect } from 'dumpkit';
 import { writeFileSync } from 'fs';
 
 const estado = {
@@ -186,7 +186,7 @@ writeFileSync('debug.json', inspect(estado, { colors: false }));
 ### Middleware para Express
 
 ```js
-import { dump } from 'nodedump';
+import { dump } from 'dumpkit';
 
 app.use((req, res, next) => {
   dump({

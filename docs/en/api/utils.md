@@ -1,6 +1,6 @@
 # Utilities
 
-nodedump exposes some internal utilities for advanced use cases.
+dumpkit exposes some internal utilities for advanced use cases.
 
 ## shouldUseColors()
 
@@ -25,7 +25,7 @@ Returns `true` if colors should be used, `false` otherwise.
 ### Example
 
 ```js
-import { shouldUseColors } from 'nodedump/utils';
+import { shouldUseColors } from 'dumpkit/utils';
 
 if (shouldUseColors()) {
   console.log('Terminal supports colors');
@@ -59,7 +59,7 @@ Colored string if `useColors` is `true`, otherwise original string.
 ### Example
 
 ```js
-import { colorize, COLORS } from 'nodedump/utils';
+import { colorize, COLORS } from 'dumpkit/utils';
 
 const red = colorize('Error!', COLORS.red, true);
 console.log(red);
@@ -89,7 +89,7 @@ Object with ANSI color codes.
 ### Example
 
 ```js
-import { COLORS } from 'nodedump/utils';
+import { COLORS } from 'dumpkit/utils';
 
 console.log(`${COLORS.red}Error${COLORS.reset}: ${message}`);
 ```
@@ -123,7 +123,7 @@ class CircularDetector {
 ### Example
 
 ```js
-import { CircularDetector } from 'nodedump/utils';
+import { CircularDetector } from 'dumpkit/utils';
 
 const detector = new CircularDetector();
 const obj = { name: 'test' };
@@ -160,7 +160,7 @@ getCallerLocation(depth?: number): StackFrame | null
 ### Example
 
 ```js
-import { getCallerLocation } from 'nodedump/utils';
+import { getCallerLocation } from 'dumpkit/utils';
 
 function myLogger() {
   const caller = getCallerLocation(1);

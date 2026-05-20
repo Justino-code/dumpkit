@@ -1,10 +1,10 @@
-# Contributing to nodedump
+# Contributing to dumpkit
 
-First off, thank you for considering contributing to nodedump! 🎉
+First off, thank you for considering contributing to dumpkit! 🎉
 
 ## Philosophy
 
-Before contributing, understand the core principles of nodedump:
+Before contributing, understand the core principles of dumpkit:
 
 - **Zero dependencies** – No external packages. Ever.
 - **Zero config** – No environment variables, no config files. Works out of the box.
@@ -51,8 +51,8 @@ We welcome suggestions! Please include:
 
 ```bash
 # Clone the repository
-git clone https://github.com/justino-code/nodedump.git
-cd nodedump
+git clone https://github.com/justino-code/dumpkit.git
+cd dumpkit
 
 # Install dependencies
 yarn install
@@ -70,7 +70,7 @@ yarn docs:dev
 ## Project Structure
 
 ```
-nodedump/
+dumpkit/
 ├── src/           # Source code
 │   ├── shared/    # Shared utilities and types
 │   ├── core/      # Core formatting logic

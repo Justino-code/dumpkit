@@ -3,7 +3,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { inspect, dump, dd, trace, measure } from '../src/index';
 
-describe('nodedump integration', () => {
+describe('dumpkit integration', () => {
   let consoleErrorSpy: any;
   let stderrWriteSpy: any;
   let exitSpy: any;

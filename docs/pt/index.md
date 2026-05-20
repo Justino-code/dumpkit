@@ -2,7 +2,7 @@
 sidebar: true
 ---
 
-# nodedump
+# dumpkit
 
 Debugging sem dependências para Node.js
 
@@ -11,11 +11,11 @@ Debugging sem dependências para Node.js
 </div>
 
 <div style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 3rem;">
-  <a href="/nodedump/pt/getting-started" class="btn-primary">Começar</a>
-  <a href="https://github.com/justino-code/nodedump" class="btn-secondary">GitHub</a>
+  <a href="/dumpkit/pt/getting-started" class="btn-primary">Começar</a>
+  <a href="https://github.com/justino-code/dumpkit" class="btn-secondary">GitHub</a>
 </div>
 
-## Porquê nodedump?
+## Porquê dumpkit?
 
 Já perdeu minutos a tentar entender uma estrutura de dados complexa com `console.log()`?
 
@@ -26,10 +26,10 @@ console.log(usuario);
 // Você não vê o que está dentro! 😫
 ```
 
-**Com nodedump:**
+**Com dumpkit:**
 
 ```js
-import { dump } from 'nodedump';
+import { dump } from 'dumpkit';
 
 dump(usuario);
 ```
@@ -57,7 +57,7 @@ dump(usuario);
 Precisa parar o código num ponto específico para inspecionar?
 
 ```js
-import { dd } from 'nodedump';
+import { dd } from 'dumpkit';
 
 function processarPedido(pedido) {
   // Validação falhou? Para tudo e mostra
@@ -104,7 +104,7 @@ function processarPedido(pedido) {
 ## Instalação
 
 ```bash
-yarn add nodedump
+yarn add dumpkit
 ```
 
 <style>

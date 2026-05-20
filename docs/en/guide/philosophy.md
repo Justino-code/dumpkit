@@ -2,7 +2,7 @@
 
 ## Separation of Concerns
 
-nodedump is built on a simple principle:
+dumpkit is built on a simple principle:
 
 > **Generate debug output without caring where it goes.**
 
@@ -17,7 +17,7 @@ This means:
 No environment variables. No configuration files. No surprises.
 
 - Colors auto-detect based on TTY (but you can force them)
-- No `NODE_ENV` checks - you control when to call nodedump
+- No `NODE_ENV` checks - you control when to call dumpkit
 - No external dependencies - keeps your project lean
 
 ## Predictable API
@@ -34,7 +34,7 @@ Every function does exactly what you expect:
 
 ## Why not just use console.log?
 
-| Feature | console.log | nodedump |
+| Feature | console.log | dumpkit |
 |---------|-------------|----------|
 | Pretty printing | ❌ | ✅ |
 | Circular references | 💥 Crash | ✅ Safe |
@@ -52,7 +52,7 @@ The clean separation allows anyone to build on top:
 ### Example: Custom HTTP debugger
 
 ```js
-import { inspect } from 'nodedump';
+import { inspect } from 'dumpkit';
 
 app.get('/debug/state', (req, res) => {
   const state = inspect(app.state);
@@ -63,7 +63,7 @@ app.get('/debug/state', (req, res) => {
 ### Example: File logger
 
 ```js
-import { inspect } from 'nodedump';
+import { inspect } from 'dumpkit';
 import { appendFile } from 'fs/promises';
 
 await appendFile('debug.log', inspect(data));
@@ -72,7 +72,7 @@ await appendFile('debug.log', inspect(data));
 ### Example: Debug middleware
 
 ```js
-import { dump } from 'nodedump';
+import { dump } from 'dumpkit';
 
 app.use((req, res, next) => {
   dump({ method: req.method, url: req.url });
@@ -82,10 +82,10 @@ app.use((req, res, next) => {
 
 ## Minimalist Design
 
-nodedump does one thing and does it well: **debugging**.
+dumpkit does one thing and does it well: **debugging**.
 
 - No structured logging (use Pino/Winston for that)
 - No distributed tracing (use OpenTelemetry for that)
 - No dashboards (use Datadog/NewRelic for that)
 
-But you can **combine** nodedump with those tools - `inspect()` gives you the formatted string you can send anywhere.
+But you can **combine** dumpkit with those tools - `inspect()` gives you the formatted string you can send anywhere.

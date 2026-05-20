@@ -47,7 +47,7 @@ dump(config);
 
 ## Circular References
 
-nodedump automatically handles objects that reference themselves:
+dumpkit automatically handles objects that reference themselves:
 
 ```js
 const person = { name: 'John' };
@@ -158,7 +158,7 @@ dump(deepData, { depth: 2 });
 ### Clean output for testing
 
 ```js
-import { inspect } from 'nodedump';
+import { inspect } from 'dumpkit';
 
 // In a test file
 const result = complexFunction();
@@ -171,7 +171,7 @@ expect(output).toContain('expected-value');
 ### Send debug to file
 
 ```js
-import { inspect } from 'nodedump';
+import { inspect } from 'dumpkit';
 import { writeFileSync } from 'fs';
 
 const state = {
@@ -186,7 +186,7 @@ writeFileSync('debug.json', inspect(state, { colors: false }));
 ### Express middleware
 
 ```js
-import { dump } from 'nodedump';
+import { dump } from 'dumpkit';
 
 app.use((req, res, next) => {
   dump({

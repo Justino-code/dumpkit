@@ -1,6 +1,6 @@
 # Tipos TypeScript
 
-O nodedump inclui tipos TypeScript completos para todas as APIs.
+O dumpkit inclui tipos TypeScript completos para todas as APIs.
 
 ## InspectOptions
 
@@ -83,8 +83,8 @@ type MeasureResult = {
 ### Importar tipos
 
 ```ts
-import { inspect, dump } from 'nodedump';
-import type { InspectOptions, DumpOptions } from 'nodedump';
+import { inspect, dump } from 'dumpkit';
+import type { InspectOptions, DumpOptions } from 'dumpkit';
 
 const opts: InspectOptions = {
   depth: 2,
@@ -97,7 +97,7 @@ const output = inspect(dados, opts);
 ### Extender tipos
 
 ```ts
-import type { DumpOptions } from 'nodedump';
+import type { DumpOptions } from 'dumpkit';
 
 interface MyDumpOptions extends DumpOptions {
   myCustomOption?: boolean;
@@ -107,7 +107,7 @@ interface MyDumpOptions extends DumpOptions {
 ### Type guards
 
 ```ts
-import type { StackFrame } from 'nodedump';
+import type { StackFrame } from 'dumpkit';
 
 function processFrame(frame: StackFrame) {
   console.log(`${frame.file}:${frame.line}`);

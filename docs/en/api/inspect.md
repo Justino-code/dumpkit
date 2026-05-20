@@ -43,7 +43,7 @@ console.log(output);
 ### Save to file
 
 ```js
-import { inspect } from 'nodedump';
+import { inspect } from 'dumpkit';
 import { writeFileSync } from 'fs';
 
 const state = { users: 150, active: true };
@@ -53,7 +53,7 @@ writeFileSync('debug.json', inspect(state, { colors: false }));
 ### Send via HTTP
 
 ```js
-import { inspect } from 'nodedump';
+import { inspect } from 'dumpkit';
 
 app.get('/debug/state', (req, res) => {
   const debug = inspect(app.state);
@@ -64,7 +64,7 @@ app.get('/debug/state', (req, res) => {
 ### Unit tests
 
 ```js
-import { inspect } from 'nodedump';
+import { inspect } from 'dumpkit';
 
 test('should return correct structure', () => {
   const result = myFunction();

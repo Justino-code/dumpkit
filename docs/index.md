@@ -7,10 +7,10 @@ onMounted(() => {
   
   // Verificar se é inglês
   if (browserLang.startsWith('en')) {
-    window.location.href = '/nodedump/en/';
+    window.location.href = '/dumpkit/en/';
   } else {
     // Fallback para português
-    window.location.href = '/nodedump/';
+    window.location.href = '/dumpkit/';
   }
 });
 </script>

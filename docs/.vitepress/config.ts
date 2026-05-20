@@ -3,15 +3,15 @@ import { defineConfig } from 'vitepress'
 const currentYear = new Date().getFullYear()
 
 export default defineConfig({
-  title: 'nodedump',
+  title: 'dumpkit',
   description: 'Zero-dependency debugging for Node.js',
-  base: '/nodedump/',
+  base: '/dumpkit/',
 
   locales: {
     pt: {
       label: 'Português',
       lang: 'pt-PT',
-      title: 'nodedump',
+      title: 'dumpkit',
       description: 'Debugging sem dependências para Node.js',
       themeConfig: {
         nav: [
@@ -56,7 +56,7 @@ export default defineConfig({
     en: {
       label: 'English',
       lang: 'en-US',
-      title: 'nodedump',
+      title: 'dumpkit',
       description: 'Zero-dependency debugging for Node.js',
       themeConfig: {
         nav: [
@@ -102,7 +102,7 @@ export default defineConfig({
 
   themeConfig: {
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/justino-code/nodedump' }
+      { icon: 'github', link: 'https://github.com/justino-code/dumpkit' }
     ],
     footer: {
       message: 'MIT License',

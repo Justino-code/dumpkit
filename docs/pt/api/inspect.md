@@ -43,7 +43,7 @@ console.log(output);
 ### Guardar em ficheiro
 
 ```js
-import { inspect } from 'nodedump';
+import { inspect } from 'dumpkit';
 import { writeFileSync } from 'fs';
 
 const estado = { usuarios: 150, ativo: true };
@@ -53,7 +53,7 @@ writeFileSync('debug.json', inspect(estado, { colors: false }));
 ### Enviar via HTTP
 
 ```js
-import { inspect } from 'nodedump';
+import { inspect } from 'dumpkit';
 
 app.get('/debug/estado', (req, res) => {
   const debug = inspect(app.state);
@@ -64,7 +64,7 @@ app.get('/debug/estado', (req, res) => {
 ### Testes unitários
 
 ```js
-import { inspect } from 'nodedump';
+import { inspect } from 'dumpkit';
 
 test('deve retornar estrutura correta', () => {
   const resultado = minhaFuncao();

@@ -1,4 +1,4 @@
-# nodedump
+# dumpkit
 
 > **⚠️ WARNING:** This package is under development. API may change.
 > **Not recommended for use at this time.**
@@ -7,14 +7,14 @@
 
 <div align="center">
 
-[![npm version](https://img.shields.io/npm/v/nodedump.svg)](https://www.npmjs.com/package/nodedump)
-[![npm downloads](https://img.shields.io/npm/dm/nodedump.svg)](https://www.npmjs.com/package/nodedump)
-[![license](https://img.shields.io/npm/l/nodedump.svg)](https://github.com/justino-code/nodedump/blob/main/LICENSE)
-[![node version](https://img.shields.io/node/v/nodedump.svg)](https://nodejs.org)
-[![build status](https://img.shields.io/github/actions/workflow/status/justino-code/nodedump/docs.yml?branch=main)](https://github.com/justino-code/nodedump/actions)
-[![coverage](https://img.shields.io/codecov/c/github/justino-code/nodedump)](https://codecov.io/gh/justino-code/nodedump)
+[![npm version](https://img.shields.io/npm/v/dumpkit.svg)](https://www.npmjs.com/package/dumpkit)
+[![npm downloads](https://img.shields.io/npm/dm/dumpkit.svg)](https://www.npmjs.com/package/dumpkit)
+[![license](https://img.shields.io/npm/l/dumpkit.svg)](https://github.com/justino-code/dumpkit/blob/main/LICENSE)
+[![node version](https://img.shields.io/node/v/dumpkit.svg)](https://nodejs.org)
+[![build status](https://img.shields.io/github/actions/workflow/status/justino-code/dumpkit/docs.yml?branch=main)](https://github.com/justino-code/dumpkit/actions)
+[![coverage](https://img.shields.io/codecov/c/github/justino-code/dumpkit)](https://codecov.io/gh/justino-code/dumpkit)
 [![typescript](https://img.shields.io/badge/TypeScript-Ready-blue)](https://www.typescriptlang.org)
-[![status](https://img.shields.io/badge/status-alpha-orange)](https://github.com/justino-code/nodedump)
+[![status](https://img.shields.io/badge/status-alpha-orange)](https://github.com/justino-code/dumpkit)
 
 </div>
 
@@ -35,15 +35,15 @@
 ## Installation
 
 ```bash
-yarn add nodedump
+yarn add dumpkit
 # or
-npm install nodedump
+npm install dumpkit
 ```
 
 ## Quick start
 
 ```js
-import { dump, dd, inspect, trace, measure } from 'nodedump';
+import { dump, dd, inspect, trace, measure } from 'dumpkit';
 
 const user = { name: 'John', age: 30, tags: new Set(['admin', 'user']) };
 
@@ -94,12 +94,12 @@ await measure('fetch', async () => await api.call());
 
 ## Philosophy
 
-nodedump **generates** debug representations without caring **where** they go. The same core can be reused for terminal, HTTP responses, files, or custom tooling.
+dumpkit **generates** debug representations without caring **where** they go. The same core can be reused for terminal, HTTP responses, files, or custom tooling.
 
 ## Documentation
 
-- [Português](https://justino-code.github.io/nodedump/pt/)
-- [English](https://justino-code.github.io/nodedump/en/)
+- [Português](https://justino-code.github.io/dumpkit/pt/)
+- [English](https://justino-code.github.io/dumpkit/en/)
 
 ## Author
 

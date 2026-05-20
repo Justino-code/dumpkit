@@ -3,9 +3,9 @@
 ## Installation
 
 ```bash
-yarn add nodedump
+yarn add dumpkit
 # or
-npm install nodedump
+npm install dumpkit
 ```
 
 ## Basic Usage
@@ -13,7 +13,7 @@ npm install nodedump
 ### Import what you need
 
 ```js
-import { dump, dd, inspect, trace, measure } from 'nodedump';
+import { dump, dd, inspect, trace, measure } from 'dumpkit';
 ```
 
 ### Dump a value
@@ -86,4 +86,4 @@ await measure('db-query', async () => {
 
 - Check the [API Reference](/en/api/dump) for detailed options
 - See [Examples](/en/guide/examples) for advanced usage
-- Read about the [Philosophy](/en/guide/philosophy) behind nodedump
+- Read about the [Philosophy](/en/guide/philosophy) behind dumpkit

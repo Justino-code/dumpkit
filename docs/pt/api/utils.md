@@ -1,6 +1,6 @@
 # Utilitários
 
-O nodedump expõe algumas utilidades internas para casos de uso avançados.
+O dumpkit expõe algumas utilidades internas para casos de uso avançados.
 
 ## shouldUseColors()
 
@@ -25,7 +25,7 @@ Retorna `true` se as cores devem ser usadas, `false` caso contrário.
 ### Exemplo
 
 ```js
-import { shouldUseColors } from 'nodedump/utils';
+import { shouldUseColors } from 'dumpkit/utils';
 
 if (shouldUseColors()) {
   console.log('Terminal suporta cores');
@@ -59,7 +59,7 @@ String colorida se `useColors` for `true`, senão a string original.
 ### Exemplo
 
 ```js
-import { colorize, COLORS } from 'nodedump/utils';
+import { colorize, COLORS } from 'dumpkit/utils';
 
 const vermelho = colorize('Erro!', COLORS.red, true);
 console.log(vermelho);
@@ -89,7 +89,7 @@ Objeto com códigos ANSI para cores.
 ### Exemplo
 
 ```js
-import { COLORS } from 'nodedump/utils';
+import { COLORS } from 'dumpkit/utils';
 
 console.log(`${COLORS.red}Erro${COLORS.reset}: ${mensagem}`);
 ```
@@ -123,7 +123,7 @@ class CircularDetector {
 ### Exemplo
 
 ```js
-import { CircularDetector } from 'nodedump/utils';
+import { CircularDetector } from 'dumpkit/utils';
 
 const detector = new CircularDetector();
 const obj = { nome: 'teste' };
@@ -160,7 +160,7 @@ Objeto `StackFrame` ou `null` se não encontrar.
 ### Exemplo
 
 ```js
-import { getCallerLocation } from 'nodedump/utils';
+import { getCallerLocation } from 'dumpkit/utils';
 
 function meuLogger() {
   const caller = getCallerLocation(1);
