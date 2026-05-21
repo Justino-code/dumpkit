@@ -1,6 +1,6 @@
-# dp() e dpp()
+# dp()
 
-Pausam a execução do programa para inspeção interativa.
+Pausa a execução do programa para inspeção interativa.
 
 ## dp()
 
@@ -26,7 +26,7 @@ dp(valor: unknown, opcoes?: PauseOptions): Promise<unknown>
 | `message` | `string` | `"Pressione ENTER para continuar..."` | Mensagem a mostrar |
 | `timeout` | `number` | `0` | Tempo máximo em ms (0 = infinito) |
 | `autoContinue` | `boolean` | `true` | Auto-continuar em CI/ambiente não TTY |
-| `depth` | `number` | `4` | Profundidade máxima |
+| `depth` | `number` | `30` | Profundidade máxima |
 | `colors` | `boolean` | `auto` | Forçar cores |
 | `stream` | `WriteStream` | `stderr` | Stream de saída |
 
@@ -56,42 +56,26 @@ await dp(user, { timeout: 5000 });
 // Continua automaticamente após 5 segundos
 ```
 
-## dpp()
-
-Mostra um valor, exibe o stack trace e pausa a execução.
-
-### Sintaxe
-
-```ts
-dpp(valor: unknown, opcoes?: PauseWithTraceOptions): Promise<unknown>
-```
-
-### Opções adicionais
-
-| Opção | Tipo | Padrão | Descrição |
-|-------|------|--------|-----------|
-| `label` | `string` | `"pause"` | Rótulo para o trace |
-| `showStack` | `boolean` | `true` | Mostrar stack completo |
-
-### Exemplos
-
-#### Uso básico
+#### Sem cores
 
 ```js
-await dpp(user);
-// Mostra user, stack trace e aguarda ENTER
+await dp(user, { colors: false });
 ```
 
-#### Com rótulo personalizado
+## Combinação com trace
+
+Para obter o comportamento do antigo `dpp()`, combine `trace()` com `dp()`:
 
 ```js
-await dpp(user, { label: 'auth-checkpoint' });
+trace('meu-ponto');
+await dp(valor);
 ```
 
-#### Desativar stack completo
+Ou com stack completo:
 
 ```js
-await dpp(user, { showStack: false });
+trace('meu-ponto', { showStack: true });
+await dp(valor);
 ```
 
 ## Comportamento em CI
@@ -107,10 +91,11 @@ await dp(user); // Não bloqueia em CI
 ### Debugging interativo
 
 ```js
-import { dp, dpp } from 'dumpkit';
+import { trace, dp } from 'dumpkit';
 
 async function processarPedido(pedido) {
-  await dpp(pedido, { label: 'pedido-recebido' });
+  trace('pedido-recebido', { showStack: true });
+  await dp(pedido);
   
   const resultado = await api.processar(pedido);
   await dp(resultado, { message: 'Resultado obtido. Continuar?' });
@@ -128,9 +113,18 @@ await dp(dados, {
 });
 ```
 
-## Diferenças entre dp() e dpp()
+### Redirecionar para ficheiro
 
-| Função | Mostra valor | Mostra stack | Pausa |
-|--------|--------------|--------------|-------|
-| `dp()` | ✅ | ❌ | ✅ |
-| `dpp()` | ✅ | ✅ | ✅ |
+```js
+import { createWriteStream } from 'fs';
+const stream = createWriteStream('./debug.log');
+
+await dp(user, { stream });
+```
+
+## Dicas
+
+- Usa `dp()` para inspecionar valores interativamente
+- Combina com `trace()` para ver onde estás no código
+- Define `timeout` para evitar bloqueios em produção
+- Usa `autoContinue: false` para forçar pausa mesmo em CI

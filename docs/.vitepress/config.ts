@@ -40,7 +40,7 @@ export default defineConfig({
               text: 'API Reference',
               items: [
                 { text: 'dump() & dd()', link: '/pt/api/dump' },
-                { text: 'dp() & dpp()', link: '/pt/api/pause' },
+                { text: 'dp()', link: '/pt/api/pause' },
                 { text: 'inspect()', link: '/pt/api/inspect' },
                 { text: 'trace()', link: '/pt/api/trace' },
                 { text: 'measure()', link: '/pt/api/measure' },
@@ -87,7 +87,7 @@ export default defineConfig({
               text: 'API Reference',
               items: [
                 { text: 'dump() & dd()', link: '/en/api/dump' },
-                { text: 'dp() & dpp()', link: '/pt/api/pause' },
+                { text: 'dp()', link: '/pt/api/pause' },
                 { text: 'inspect()', link: '/en/api/inspect' },
                 { text: 'trace()', link: '/en/api/trace' },
                 { text: 'measure()', link: '/en/api/measure' },

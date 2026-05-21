@@ -35,6 +35,7 @@ describe('trace', () => {
     
     const output = stderrWriteSpy.mock.calls[0][0];
     expect(output).not.toContain('\x1b');
+    
   });
 
   it('should show full stack trace when showStack is true', () => {
@@ -43,5 +44,6 @@ describe('trace', () => {
     expect(stderrWriteSpy.mock.calls.length).toBeGreaterThan(1);
     const output = stderrWriteSpy.mock.calls[0][0];
     expect(output).toContain('[Trace]');
+    
   });
 });
