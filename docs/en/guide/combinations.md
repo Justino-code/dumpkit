@@ -6,7 +6,7 @@ The combinations listed below are just **examples** to illustrate the composable
 
 ---
 
-## Example combinations
+## Examples of combinations
 
 ### Dump with stack trace
 
@@ -20,6 +20,18 @@ trace();
 ```js
 const { result } = measure('operation', () => fn());
 dump(result);
+```
+
+### Dump and pause
+
+```js
+await dp(value);
+```
+
+### Dump, stack and pause
+
+```js
+await dpp(value);
 ```
 
 ### Dump and die with stack
@@ -51,8 +63,6 @@ Currently, to display multiple values, group them in an object:
 dump({ v1, v2, v3 });
 ```
 
-(We plan to support variadic arguments in a future version: `dump(v1, v2, v3)`)
-
 ### Combine with native code
 
 ```js
@@ -63,6 +73,11 @@ if (process.env.DEBUG) dump(data);
 const m1 = measure('A', fnA).measurement;
 const m2 = measure('B', fnB).measurement;
 dump({ m1, m2 });
+
+// Redirect to file
+const stream = createWriteStream('./debug.log');
+trace('checkpoint', { stream });
+await measure('query', () => db.query(sql), { stream });
 ```
 
 ---
@@ -73,6 +88,8 @@ dump({ m1, m2 });
 |------|-------------|------|
 | `ddd` | Dump with stack trace | `dump(value); trace()` |
 | `ddt` | Dump with timing | `dump(measure('op', () => fn()).result)` |
+| `dp` | Dump and pause | `await dp(value)` |
+| `dpp` | Dump, stack and pause | `await dpp(value)` |
 | `ddds` | Dump, stack and die | `trace(); dd(value)` |
 | `ddts` | Timing and die | `dd(measure('op', () => fn()).result)` |
 | `dds` | Silent dump (no colors) | `dump(obj, { colors: false })` |
@@ -87,6 +104,6 @@ dump({ m1, m2 });
 
 ## Conclusion
 
-The **5 base functions** – `dump`, `dd`, `inspect`, `trace`, `measure` – form a small vocabulary. With them, you can **combine infinitely** to solve any debugging need.
+The **7 base functions** – `dump`, `dd`, `dp`, `dpp`, `inspect`, `trace`, `measure` – form a small vocabulary. With them, you can **combine infinitely** to solve any debugging need.
 
 This documentation only suggests some useful patterns, **not an exhaustive list**. Feel free to create your own combinations and share them with the community.
