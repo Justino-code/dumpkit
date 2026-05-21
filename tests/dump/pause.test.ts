@@ -1,7 +1,7 @@
 // tests/dump/pause.test.ts
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { dp, dpp } from '../../src/dump/pause';
+import { dp } from '../../src/dump/pause';
 
 describe('pause', () => {
   let stderrWriteSpy: any;
@@ -41,7 +41,7 @@ describe('pause', () => {
       expect(result).toBe(value);
     });
 
-    it('should auto-continue when autoContinue is false in non-TTY', async () => {
+    it('should auto-continue in non-TTY environment', async () => {
       Object.defineProperty(process.stdin, 'isTTY', { value: false, configurable: true });
       Object.defineProperty(process.stdout, 'isTTY', { value: false, configurable: true });
       
@@ -85,51 +85,19 @@ describe('pause', () => {
       
       expect(stderrWriteSpy).toHaveBeenCalled();
     });
-  });
 
-  describe('dpp', () => {
-    it('should dump value, show trace, and wait for user input', async () => {
-      const value = { name: 'John', age: 30 };
-      
-      const promise = dpp(value);
-      
-      const dataCallback = stdinOnceSpy.mock.calls.find(call => call[0] === 'data')?.[1];
-      if (dataCallback) dataCallback(Buffer.from('\n'));
-      
-      const result = await promise;
-      
-      expect(stderrWriteSpy).toHaveBeenCalled();
-      expect(result).toBe(value);
-    });
-
-    it('should respect custom label', async () => {
+    it('should respect stream option', async () => {
+      const customStream = { write: vi.fn() } as unknown as NodeJS.WriteStream;
       const value = { test: true };
-      const label = 'custom-checkpoint';
       
-      const promise = dpp(value, { label });
+      const promise = dp(value, { stream: customStream });
       
       const dataCallback = stdinOnceSpy.mock.calls.find(call => call[0] === 'data')?.[1];
       if (dataCallback) dataCallback(Buffer.from('\n'));
       
       await promise;
       
-      // Verificar que o label aparece em alguma chamada do stderr
-      const calls = stderrWriteSpy.mock.calls;
-      const hasLabel = calls.some((call: any[]) => call[0]?.includes(label));
-      expect(hasLabel).toBe(true);
-    });
-
-    it('should respect showStack option', async () => {
-      const value = { test: true };
-      
-      const promise = dpp(value, { showStack: false });
-      
-      const dataCallback = stdinOnceSpy.mock.calls.find(call => call[0] === 'data')?.[1];
-      if (dataCallback) dataCallback(Buffer.from('\n'));
-      
-      await promise;
-      
-      expect(stderrWriteSpy).toHaveBeenCalled();
+      expect(customStream.write).toHaveBeenCalled();
     });
   });
 });

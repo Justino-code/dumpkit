@@ -2,7 +2,7 @@
 
 // Core functions
 export { inspect } from './core/inspect';
-export { dump, dd, dp, dpp } from './dump';
+export { dump, dd, dp } from './dump';
 export { trace } from './trace/trace';
 export { measure } from './measure/measure';
 
