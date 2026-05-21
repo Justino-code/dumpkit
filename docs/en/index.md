@@ -111,6 +111,12 @@ function processOrder(order) {
 yarn add dumpkit
 ```
 
+or
+
+```bash
+npm install dumpkit
+```
+
 <style>
 .btn-primary {
   display: inline-block;

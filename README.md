@@ -34,7 +34,11 @@
 
 ```bash
 yarn add dumpkit
-# or
+```
+
+or
+
+```bash
 npm install dumpkit
 ```
 

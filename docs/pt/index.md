@@ -111,6 +111,12 @@ function processarPedido(pedido) {
 yarn add dumpkit
 ```
 
+ou
+
+```bash
+npm install dumpkit
+```
+
 <style>
 .btn-primary {
   display: inline-block;
