@@ -28,7 +28,8 @@ export default defineConfig({
                 { text: 'Início', link: '/pt/' },
                 { text: 'Filosofia', link: '/pt/guide/philosophy' },
                 { text: 'Começar', link: '/pt/getting-started' },
-                { text: 'Exemplos', link: '/pt/guide/examples' }
+                { text: 'Exemplos', link: '/pt/guide/examples' },
+                { text: 'Combinações', link: '/pt/guide/combinations' }
               ]
             },
             {
@@ -73,7 +74,8 @@ export default defineConfig({
                 { text: 'Home', link: '/en/' },
                 { text: 'Philosophy', link: '/en/guide/philosophy' },
                 { text: 'Getting Started', link: '/en/getting-started' },
-                { text: 'Examples', link: '/en/guide/examples' }
+                { text: 'Examples', link: '/en/guide/examples' },
+                { text: 'Combinations', link: '/en/guide/combinations' },
               ]
             },
             {
