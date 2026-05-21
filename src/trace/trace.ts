@@ -3,6 +3,7 @@
 import type { TraceOptions } from '../shared/types/options';
 import { shouldUseColors, createColorizer } from '../shared/utils/color';
 import { getCallerLocation, formatStackFrame, getStackTrace } from '../shared/utils/stack';
+import { writeToStream } from '../dump/render';
 
 /**
  * Shows the current execution point in the code
@@ -11,11 +12,12 @@ export function trace(label?: string, options?: TraceOptions): void {
   const useColors = shouldUseColors(options?.colors);
   const c = createColorizer(useColors);
   const showStack = options?.showStack ?? false;
+  const stream = options?.stream ?? process.stderr;
   
   const caller = getCallerLocation(1);
   
   if (!caller) {
-    console.error(c.red('[Trace] Could not determine caller location'));
+    writeToStream(c.red('[Trace] Could not determine caller location\n'), stream);
     return;
   }
   
@@ -24,18 +26,18 @@ export function trace(label?: string, options?: TraceOptions): void {
   let output = '';
   
   if (label) {
-    output = c.cyan(`[Trace] ${label} `) + location;
+    output = c.cyan(`[Trace] ${label} `) + location + '\n';
   } else {
-    output = c.cyan('[Trace] ') + location;
+    output = c.cyan('[Trace] ') + location + '\n';
   }
   
-  console.error(output);
+  writeToStream(output, stream);
   
   if (showStack) {
-    console.error(c.dim('\nStack trace:'));
+    writeToStream(c.dim('\nStack trace:\n'), stream);
     const frames = getStackTrace(2);
     for (const frame of frames) {
-      console.error(formatStackFrame(frame, useColors));
+      writeToStream(formatStackFrame(frame, useColors) + '\n', stream);
     }
   }
 }

@@ -25,6 +25,7 @@ Não retorna valor (`void`).
 |-------|------|--------|-----------|
 | `colors` | `boolean` | `auto` | `true` = cores ligadas, `false` = desligadas, `auto` = baseado no TTY |
 | `showStack` | `boolean` | `false` | Mostrar stack trace completo |
+| `stream` | `WriteStream` | `stderr` | Stream de saída |
 
 ## Exemplos
 
@@ -79,6 +80,16 @@ function processarPedido(pedido) {
 }
 ```
 
+### Redirecionar para ficheiro
+
+```js
+import { createWriteStream } from 'fs';
+const stream = createWriteStream('./debug.log');
+
+trace('checkpoint', { stream });
+// Output escrito no ficheiro debug.log
+```
+
 ## Casos de uso
 
 | Situação | Como usar |
@@ -116,3 +127,4 @@ Stack trace:
 - Adiciona rótulos descritivos para identificar pontos específicos
 - `showStack` é útil para perceber a cadeia de chamadas
 - Remove os `trace()` antes de fazer deploy para produção (ou usa condicionais)
+- Usa a opção `stream` para redirecionar logs para ficheiro

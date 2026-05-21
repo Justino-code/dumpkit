@@ -4,14 +4,14 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { measure } from '../../src/measure/measure';
 
 describe('measure', () => {
-  let consoleErrorSpy: any;
+  let stderrWriteSpy: any;
 
   beforeEach(() => {
-    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    stderrWriteSpy = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
   });
 
   afterEach(() => {
-    consoleErrorSpy.mockRestore();
+    stderrWriteSpy.mockRestore();
   });
 
   describe('synchronous functions', () => {
@@ -26,8 +26,8 @@ describe('measure', () => {
       
       const { result, measurement } = measure('sync-test', fn);
       
-      expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
-      const output = consoleErrorSpy.mock.calls[0][0];
+      expect(stderrWriteSpy).toHaveBeenCalledTimes(1);
+      const output = stderrWriteSpy.mock.calls[0][0];
       expect(output).toContain('[Measure] sync-test:');
       expect(output).toMatch(/\d+(\.\d+)?(ms|µs|s)/);
       expect(result).toBe(fn());
@@ -52,7 +52,7 @@ describe('measure', () => {
       
       expect(result).toBe('hello');
       expect(measurement.label).toBe('arrow-test');
-      expect(consoleErrorSpy).toHaveBeenCalled();
+      expect(stderrWriteSpy).toHaveBeenCalled();
     });
 
     it('should propagate errors from sync function', () => {
@@ -61,7 +61,7 @@ describe('measure', () => {
       };
       
       expect(() => measure('error-test', fn)).toThrow('Sync error');
-      expect(consoleErrorSpy).toHaveBeenCalled();
+      expect(stderrWriteSpy).toHaveBeenCalled();
     });
 
     it('should respect colors: false option', () => {
@@ -69,7 +69,7 @@ describe('measure', () => {
       
       measure('color-test', fn, { colors: false });
       
-      const output = consoleErrorSpy.mock.calls[0][0];
+      const output = stderrWriteSpy.mock.calls[0][0];
       expect(output).not.toContain('\x1b');
     });
 
@@ -78,8 +78,18 @@ describe('measure', () => {
       
       measure('color-test', fn, { colors: true });
       
-      const output = consoleErrorSpy.mock.calls[0][0];
+      const output = stderrWriteSpy.mock.calls[0][0];
       expect(output).toContain('\x1b');
+    });
+
+    it('should respect stream option', () => {
+      const customStream = { write: vi.fn() } as unknown as NodeJS.WriteStream;
+      const fn = () => 123;
+      
+      measure('stream-test', fn, { stream: customStream });
+      
+      expect(customStream.write).toHaveBeenCalled();
+      expect(stderrWriteSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -92,8 +102,8 @@ describe('measure', () => {
       
       const { result, measurement } = await measure('async-test', fn);
       
-      expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
-      const output = consoleErrorSpy.mock.calls[0][0];
+      expect(stderrWriteSpy).toHaveBeenCalledTimes(1);
+      const output = stderrWriteSpy.mock.calls[0][0];
       expect(output).toContain('[Measure] async-test:');
       expect(result).toBe('done');
       expect(measurement.label).toBe('async-test');
@@ -116,7 +126,7 @@ describe('measure', () => {
       };
       
       await expect(measure('async-error', fn)).rejects.toThrow('Async error');
-      expect(consoleErrorSpy).toHaveBeenCalled();
+      expect(stderrWriteSpy).toHaveBeenCalled();
     });
 
     it('should handle very fast async functions', async () => {
@@ -126,7 +136,7 @@ describe('measure', () => {
       
       expect(result).toBe('fast');
       expect(measurement.durationMs).toBeGreaterThanOrEqual(0);
-      expect(consoleErrorSpy).toHaveBeenCalled();
+      expect(stderrWriteSpy).toHaveBeenCalled();
     });
   });
 
@@ -138,7 +148,7 @@ describe('measure', () => {
       
       measure('fast', fn);
       
-      const output = consoleErrorSpy.mock.calls[0][0];
+      const output = stderrWriteSpy.mock.calls[0][0];
       expect(output).toMatch(/(\d+µs|\d+\.\d+ms)/);
     });
 
@@ -153,7 +163,7 @@ describe('measure', () => {
       
       measure('ms-test', fn);
       
-      const output = consoleErrorSpy.mock.calls[0][0];
+      const output = stderrWriteSpy.mock.calls[0][0];
       expect(output).toMatch(/\d+(\.\d+)?ms/);
     });
 
@@ -168,7 +178,7 @@ describe('measure', () => {
       
       measure('seconds-test', fn);
       
-      const output = consoleErrorSpy.mock.calls[0][0];
+      const output = stderrWriteSpy.mock.calls[0][0];
       expect(output).toMatch(/(\d+(\.\d+)?(ms|s))/);
     });
   });
@@ -181,7 +191,7 @@ describe('measure', () => {
       
       expect(result).toBeUndefined();
       expect(measurement.durationMs).toBeGreaterThanOrEqual(0);
-      expect(consoleErrorSpy).toHaveBeenCalled();
+      expect(stderrWriteSpy).toHaveBeenCalled();
     });
 
     it('should handle function returning null', () => {
@@ -210,10 +220,10 @@ describe('measure', () => {
       measure('with-numbers-123', fn);
       measure('', fn);
       
-      expect(consoleErrorSpy).toHaveBeenCalledTimes(4);
-      expect(consoleErrorSpy.mock.calls[0][0]).toContain('simple');
-      expect(consoleErrorSpy.mock.calls[1][0]).toContain('with spaces');
-      expect(consoleErrorSpy.mock.calls[2][0]).toContain('with-numbers-123');
+      expect(stderrWriteSpy).toHaveBeenCalledTimes(4);
+      expect(stderrWriteSpy.mock.calls[0][0]).toContain('simple');
+      expect(stderrWriteSpy.mock.calls[1][0]).toContain('with spaces');
+      expect(stderrWriteSpy.mock.calls[2][0]).toContain('with-numbers-123');
     });
   });
 });

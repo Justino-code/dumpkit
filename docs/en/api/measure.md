@@ -28,6 +28,7 @@ Returns an object with:
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `colors` | `boolean` | `auto` | `true` = force colors, `false` = no colors, `auto` = TTY-based |
+| `stream` | `WriteStream` | `stderr` | Output stream |
 
 ## Examples
 
@@ -70,6 +71,16 @@ const { result } = measure('operation', () => heavyCalculation());
 
 ```js
 measure('operation', fn, { colors: false });
+```
+
+### Redirect to file
+
+```js
+import { createWriteStream } from 'fs';
+const stream = createWriteStream('./debug.log');
+
+await measure('query', () => db.query(sql), { stream });
+// Output written to debug.log file
 ```
 
 ### Compare two approaches
@@ -125,3 +136,4 @@ try {
 - Compare different implementations of the same functionality
 - Remove `measure()` before deploying to production (or use conditionals)
 - For very fast operations (< 1ms), output shows in microseconds
+- Use the `stream` option to redirect logs to a file

@@ -25,6 +25,7 @@ Returns nothing (`void`).
 |--------|------|---------|-------------|
 | `colors` | `boolean` | `auto` | `true` = force colors, `false` = no colors, `auto` = TTY-based |
 | `showStack` | `boolean` | `false` | Show full stack trace |
+| `stream` | `WriteStream` | `stderr` | Output stream |
 
 ## Examples
 
@@ -79,6 +80,16 @@ function processOrder(order) {
 }
 ```
 
+### Redirect to file
+
+```js
+import { createWriteStream } from 'fs';
+const stream = createWriteStream('./debug.log');
+
+trace('checkpoint', { stream });
+// Output written to debug.log file
+```
+
 ## Use cases
 
 | Situation | How to use |
@@ -116,3 +127,4 @@ Stack trace:
 - Add descriptive labels to identify specific points
 - `showStack` is useful to understand the call chain
 - Remove `trace()` calls before deploying to production (or use conditionals)
+- Use the `stream` option to redirect logs to a file

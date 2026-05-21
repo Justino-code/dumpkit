@@ -28,6 +28,7 @@ Retorna um objeto com:
 | Opção | Tipo | Padrão | Descrição |
 |-------|------|--------|-----------|
 | `colors` | `boolean` | `auto` | `true` = cores ligadas, `false` = desligadas, `auto` = baseado no TTY |
+| `stream` | `WriteStream` | `stderr` | Stream de saída |
 
 ## Exemplos
 
@@ -70,6 +71,16 @@ const { result } = measure('operacao', () => calculoPesado());
 
 ```js
 measure('operacao', fn, { colors: false });
+```
+
+### Redirecionar para ficheiro
+
+```js
+import { createWriteStream } from 'fs';
+const stream = createWriteStream('./debug.log');
+
+await measure('consulta', () => db.query(sql), { stream });
+// Output escrito no ficheiro debug.log
 ```
 
 ### Comparar duas abordagens
@@ -125,3 +136,4 @@ try {
 - Compara diferentes implementações da mesma funcionalidade
 - Remove `measure()` antes do deploy em produção (ou usa condicionais)
 - Para operações muito rápidas (< 1ms), o output mostra em microssegundos
+- Usa a opção `stream` para redirecionar logs para ficheiro

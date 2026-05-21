@@ -37,6 +37,8 @@ export type TraceOptions = {
   
   /** Show full stack trace instead of just caller (default: false) */
   showStack?: boolean;
+
+  stream?: NodeJS.WriteStream;
 };
 
 export type MeasureOptions = {
@@ -45,6 +47,8 @@ export type MeasureOptions = {
   
   /** Number of spaces for indentation (default: 2) */
   indent?: number;
+
+  stream?: NodeJS.WriteStream;
 };
 
 export type FormatOptions = Required<Omit<InspectOptions, 'colors'>> & {
@@ -57,4 +61,15 @@ export type {
   TraceOptions as TraceOptionsType,
   MeasureOptions as MeasureOptionsType,
   FormatOptions as FormatOptionsType,
+};
+
+export type PauseOptions = InspectOptions & {
+  message?: string;
+  timeout?: number;
+  autoContinue?: boolean;
+  stream?: NodeJS.WriteStream;
+};
+
+export type PauseWithTraceOptions = PauseOptions & TraceOptions & {
+  label?: string;
 };

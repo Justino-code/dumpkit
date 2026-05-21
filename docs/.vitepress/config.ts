@@ -40,6 +40,7 @@ export default defineConfig({
               text: 'API Reference',
               items: [
                 { text: 'dump() & dd()', link: '/pt/api/dump' },
+                { text: 'dp() & dpp()', link: '/pt/api/pause' },
                 { text: 'inspect()', link: '/pt/api/inspect' },
                 { text: 'trace()', link: '/pt/api/trace' },
                 { text: 'measure()', link: '/pt/api/measure' },
@@ -50,7 +51,7 @@ export default defineConfig({
             {
               text: 'Informações',
               items: [
-                { text: 'Changelog', link: '/pt/changelog' },
+                { text: 'Versões', link: '/pt/changelog' },
                 { text: 'Contribuir', link: '/pt/contributing' }
               ]
             }
@@ -86,6 +87,7 @@ export default defineConfig({
               text: 'API Reference',
               items: [
                 { text: 'dump() & dd()', link: '/en/api/dump' },
+                { text: 'dp() & dpp()', link: '/pt/api/pause' },
                 { text: 'inspect()', link: '/en/api/inspect' },
                 { text: 'trace()', link: '/en/api/trace' },
                 { text: 'measure()', link: '/en/api/measure' },
@@ -96,7 +98,7 @@ export default defineConfig({
             {
               text: 'More',
               items: [
-                { text: 'Changelog', link: '/en/changelog' },
+                { text: 'Versions', link: '/en/changelog' },
                 { text: 'Contributing', link: '/en/contributing' }
               ]
             }

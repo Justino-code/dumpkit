@@ -2,9 +2,15 @@
 
 import type { MeasureOptions } from '../shared/types/options';
 import { shouldUseColors, createColorizer } from '../shared/utils/color';
+import { writeToStream } from '../dump/render';
 import type { MeasureResult } from '../shared/types/dto';
 
-function outputMeasure(label: string, durationMs: number, useColors: boolean): void {
+function outputMeasure(
+  label: string,
+  durationMs: number,
+  useColors: boolean,
+  stream: NodeJS.WriteStream
+): void {
   const c = createColorizer(useColors);
   
   let formattedDuration: string;
@@ -16,8 +22,8 @@ function outputMeasure(label: string, durationMs: number, useColors: boolean): v
     formattedDuration = `${(durationMs / 1000).toFixed(2)}s`;
   }
   
-  const output = c.yellow(`[Measure] ${label}: `) + c.green(formattedDuration);
-  console.error(output);
+  const output = c.yellow(`[Measure] ${label}: `) + c.green(formattedDuration) + '\n';
+  writeToStream(output, stream);
 }
 
 function createMeasureResult(label: string, startTime: number, endTime: number): MeasureResult {
@@ -45,6 +51,7 @@ export function measure<T>(
   options?: MeasureOptions
 ): { result: T; measurement: MeasureResult } | Promise<{ result: T; measurement: MeasureResult }> {
   const useColors = shouldUseColors(options?.colors);
+  const stream = options?.stream ?? process.stderr;
   const startTime = performance.now();
   
   try {
@@ -54,7 +61,7 @@ export function measure<T>(
       return result.then((value) => {
         const endTime = performance.now();
         const duration = endTime - startTime;
-        outputMeasure(label, duration, useColors);
+        outputMeasure(label, duration, useColors, stream);
         return {
           result: value,
           measurement: createMeasureResult(label, startTime, endTime),
@@ -62,14 +69,14 @@ export function measure<T>(
       }).catch((error) => {
         const endTime = performance.now();
         const duration = endTime - startTime;
-        outputMeasure(label, duration, useColors);
+        outputMeasure(label, duration, useColors, stream);
         throw error;
       }) as Promise<{ result: T; measurement: MeasureResult }>;
     }
     
     const endTime = performance.now();
     const duration = endTime - startTime;
-    outputMeasure(label, duration, useColors);
+    outputMeasure(label, duration, useColors, stream);
     return {
       result: result as T,
       measurement: createMeasureResult(label, startTime, endTime),
@@ -77,7 +84,7 @@ export function measure<T>(
   } catch (error) {
     const endTime = performance.now();
     const duration = endTime - startTime;
-    outputMeasure(label, duration, useColors);
+    outputMeasure(label, duration, useColors, stream);
     throw error;
   }
 }
