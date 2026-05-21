@@ -7,6 +7,10 @@ export default defineConfig({
   description: 'Zero-dependency debugging for Node.js',
   base: '/dumpkit/',
 
+  head: [
+    ['link', { rel: 'icon', href: '/dumpkit/favicon.svg', type: 'image/svg+xml' }],
+  ],
+
   locales: {
     pt: {
       label: 'Português',

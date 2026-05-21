@@ -4,7 +4,6 @@
   "type": "module",
   "description": "Debugging library for Node.js inspired by Laravel's dump() and dd()",
   "main": "dist/index.js",
-  
   "repository": {
     "type": "git",
     "url": "git+https://github.com/justino-code/dumpkit.git"
@@ -13,7 +12,6 @@
     "url": "https://github.com/justino-code/dumpkit/issues"
   },
   "homepage": "https://github.com/justino-code/dumpkit#readme",
-
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "exports": {

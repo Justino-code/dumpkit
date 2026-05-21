@@ -2,7 +2,11 @@
 sidebar: true
 ---
 
-# dumpkit
+<div align="center">
+  <img src="/logo.svg" alt="dumpkit logo" width="300">
+</div>
+
+## dumpkit
 
 Zero-dependency debugging for Node.js
 

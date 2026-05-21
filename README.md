@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/justino-code/dumpkit/main/docs/public/logo.svg" alt="dumpkit logo" width="400">
+</p>
+
 # dumpkit
 
 > Debugging library for Node.js inspired by Laravel's `dump()` and `dd()`
