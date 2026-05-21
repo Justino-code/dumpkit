@@ -28,10 +28,11 @@ dump(result);
 await dp(valor);
 ```
 
-### Dump, stack e pausa
+### Dump, stack e pausa (`dpp`)
 
 ```js
-await dpp(valor);
+trace();
+await dp(valor);
 ```
 
 ### Dump e parar com stack
@@ -89,7 +90,7 @@ await measure('consulta', () => db.query(sql), { stream });
 | `ddd` | Dump com stack trace | `dump(valor); trace()` |
 | `ddt` | Dump com timing | `dump(measure('op', () => fn()).result)` |
 | `dp` | Dump e pausa | `await dp(valor)` |
-| `dpp` | Dump, stack e pausa | `await dpp(valor)` |
+| `dpp` | Dump, stack e pausa | `trace(); await dp(valor)` |
 | `ddds` | Dump, stack e parar | `trace(); dd(valor)` |
 | `ddts` | Timing e parar | `dd(measure('op', () => fn()).result)` |
 | `dds` | Dump silencioso (sem cores) | `dump(obj, { colors: false })` |
@@ -104,6 +105,6 @@ await measure('consulta', () => db.query(sql), { stream });
 
 ## Conclusão
 
-As **7 funções base** – `dump`, `dd`, `dp`, `dpp`, `inspect`, `trace`, `measure` – formam um pequeno vocabulário. Com elas, pode **combinar infinitamente** para resolver qualquer necessidade de debug.
+As **6 funções base** – `dump`, `dd`, `dp`, `inspect`, `trace`, `measure` – formam um pequeno vocabulário. Com elas, pode **combinar infinitamente** para resolver qualquer necessidade de debug.
 
 A documentação apenas sugere alguns padrões úteis, **não uma lista exaustiva**. Sinta‑se à vontade para criar as suas próprias combinações e partilhá‑las com a comunidade.

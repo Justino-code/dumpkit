@@ -5,7 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.2.0] - 2026-05-21
+## [0.2.0] - TBD
+
+### Changed
+- Stack trace now filters internal library frames, showing only user code
+
+### Removed
+- `dpp()` function - use `trace()` + `dp()` combination instead
+
+## [0.2.0-beta] - 2026-05-21
 
 ### Added
 - `dp()` function - dump and pause (wait for user input)
@@ -30,7 +38,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added examples for redirecting output to files
 - Portuguese and English versions maintained
 
-## [0.1.0] - 2026-05-20
+## [0.1.1] - 2026-05-20
+
+## [0.1.0] - 2026-05-20 (deprecated)
 
 ### Added
 - Core formatter with circular reference detection
@@ -47,3 +57,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Zero dependencies
 - Auto color detection (TTY)
 - Force colors on/off via options
+
+> **⚠️ Deprecated:** Please use `0.1.1` or later.

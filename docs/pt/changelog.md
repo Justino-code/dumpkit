@@ -5,7 +5,15 @@ Todas as alterações importantes neste projeto serão documentadas neste fichei
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/),
 e este projeto segue [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.2.0] - 2026-05-21
+## [0.2.0] - A definir
+
+### Alterado
+- Stack trace agora filtra frames internos da lib, mostrando apenas código do utilizador
+
+### Removido
+- Função `dpp()` - use a combinação `trace()` + `dp()` em vez disso
+
+## [0.2.0-beta] - 2026-05-21
 
 ### Adicionado
 - Função `dp()` - dump e pausa (aguarda input do utilizador)
@@ -30,7 +38,9 @@ e este projeto segue [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Adicionados exemplos de redirecionamento para ficheiros
 - Versões em Português e Inglês mantidas
 
-## [0.1.0] - 2026-05-20
+## [0.1.1] - 2026-05-20
+
+## [0.1.0] - 2026-05-20 (depreciada)
 
 ### Adicionado
 - Formatador core com deteção de referências circulares
@@ -47,3 +57,5 @@ e este projeto segue [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Zero dependências
 - Deteção automática de cores (TTY)
 - Forçar cores ligado/desligado via opções
+
+> **⚠️ Depreciada:** Use a versão `0.1.1` ou superior.
