@@ -22,6 +22,7 @@
 
 - **dump()** – Display structured values instantly
 - **dd()** – Dump and die (exits process)
+- **dp()** - Dumo and pause
 - **inspect()** – Get formatted string without printing
 - **trace()** – Show stack trace with location
 - **measure()** – Time sync/async execution
