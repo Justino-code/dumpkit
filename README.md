@@ -106,7 +106,7 @@ Options:
 - `colors?: boolean` – Force colors (default: true in TTY)
 - `showHidden?: boolean` – Show non-enumerable properties
 
-### trace(label?, options?)
+### `trace(label?, options?)`
 
 Prints current stack trace with optional label and file:line location.
 
