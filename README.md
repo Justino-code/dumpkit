@@ -82,35 +82,35 @@ await dp({ step: 'before processing', user });
 dd(user);                             // Dump and exit
 ```
 
-API
+## API
 
-dump(value, options?)
+### `dump(value, options?)`
 
 Prints a formatted representation of the value to stderr. Returns the value unchanged (for chaining).
 
-dd(value, options?)
+### `dd(value, options?)`
 
 Prints the value and calls process.exit(1).
 
-dp(value, options?)
+### `dp(value, options?)`
 
 Prints the value and pauses execution until the user presses ENTER. Perfect for interactive debugging. Returns a Promise that resolves with the original value.
 
-inspect(value, options?)
+### `inspect(value, options?)`
 
 Returns a formatted string without printing.
 
 Options:
 
-· depth?: number – Maximum nesting depth (default: 30)
-· colors?: boolean – Force colors (default: true in TTY)
-· showHidden?: boolean – Show non-enumerable properties
+- `depth?: number` – Maximum nesting depth (default: 30)
+- `colors?: boolean` – Force colors (default: true in TTY)
+- `showHidden?: boolean` – Show non-enumerable properties
 
-trace(label?, options?)
+### trace(label?, options?)
 
 Prints current stack trace with optional label and file:line location.
 
-measure(label, fn, options?)
+### `measure(label, fn, options?)`
 
 Measures execution time of a sync or async function.
 
@@ -122,18 +122,18 @@ measure('sort', () => array.sort());
 await measure('fetch', async () => await api.call());
 ```
 
-Philosophy
+## Philosophy
 
 dumpkit generates debug representations without caring where they go. The same core can be reused for terminal, HTTP responses, files, or custom tooling.
 
-Documentation
+## Documentation
 
-· Português
-· English
+- [Português](https://justino-code.github.io/dumpkit/pt/)
+- [English](https://justino-code.github.io/dumpkit/en/)
 
-Author
+## Author
 
-Justino Contingo · GitHub
+**Justino Contingo** · [GitHub](https://github.com/justino-code)
 
 License
 
