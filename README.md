@@ -4,7 +4,7 @@
 
 # dumpkit
 
-> Debugging library for Node.js inspired by PHP/Laravel's `dump()` and `dd()`
+> Debugging library for Node.js inspired by Laravel's `dump()` and `dd()`
 
 <div align="center">
 
@@ -30,6 +30,20 @@
 - **Map, Set, Date, Error, RegExp support**
 - **Colors with auto-detection (or force on/off)**
 - **ESM + CommonJS**
+
+## Function History
+
+| Function | Description | Added | Removed |
+|----------|-------------|-------|---------|
+| `dump()` | Print formatted value | v0.1.0 | - |
+| `dd()` | Dump and exit | v0.1.0 | - |
+| `inspect()` | Return formatted string | v0.1.0 | - |
+| `trace()` | Show stack trace location | v0.1.0 | - |
+| `measure()` | Time execution | v0.1.0 | - |
+| `dp()` | Dump and pause (interactive) | v0.2.0-beta | - |
+| `dpp()` | Dump, pause and trace (stack) | v0.2.0-beta | v0.2.0 |
+
+> **Note:** `dpp()` was removed in v0.2.0. Use `trace()` + `dp()` instead.
 
 ## Installation
 
