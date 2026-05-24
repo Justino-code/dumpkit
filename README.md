@@ -60,7 +60,7 @@ npm install dumpkit
 Quick start
 
 ```js
-import { dump, dd, inspect, trace, measure } from 'dumpkit';
+import { dump, dd, dp, inspect, trace, measure } from 'dumpkit';
 
 const user = { name: 'John', age: 30, tags: new Set(['admin', 'user']) };
 
@@ -75,6 +75,9 @@ measure('db-query', () => {
   // your code here
   return heavyOperation();
 });
+
+// Pause execution to inspect state
+await dp({ step: 'before processing', user });
 
 dd(user);                             // Dump and exit
 ```
