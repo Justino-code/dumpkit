@@ -11,7 +11,7 @@ sidebar: true
 Debugging sem dependências para Node.js
 
 <div style="text-align: center; margin: 1rem 0 2rem 0;">
-  Inspirado no dump() e dd() do Laravel
+  Inspirado no dump() e dd() do PHP/Laravel
 </div>
 
 <div style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 3rem;">

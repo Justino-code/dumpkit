@@ -4,7 +4,7 @@
 
 # dumpkit
 
-> Debugging library for Node.js inspired by Laravel's `dump()` and `dd()`
+> Debugging library for Node.js inspired by PHP/Laravel's `dump()` and `dd()`
 
 <div align="center">
 
@@ -22,7 +22,7 @@
 
 - **dump()** – Display structured values instantly
 - **dd()** – Dump and die (exits process)
-- **dp()** - Dumo and pause
+- **dp()** – Dump and pause (wait for user input)
 - **inspect()** – Get formatted string without printing
 - **trace()** – Show stack trace with location
 - **measure()** – Time sync/async execution
@@ -43,7 +43,7 @@ or
 npm install dumpkit
 ```
 
-## Quick start
+Quick start
 
 ```js
 import { dump, dd, inspect, trace, measure } from 'dumpkit';
@@ -65,26 +65,36 @@ measure('db-query', () => {
 dd(user);                             // Dump and exit
 ```
 
-## API
+API
 
-### `dump(value, options?)`
+dump(value, options?)
+
 Prints a formatted representation of the value to stderr. Returns the value unchanged (for chaining).
 
-### `dd(value, options?)`
-Prints the value and calls `process.exit(1)`.
+dd(value, options?)
 
-### `inspect(value, options?)`
+Prints the value and calls process.exit(1).
+
+dp(value, options?)
+
+Prints the value and pauses execution until the user presses ENTER. Perfect for interactive debugging. Returns a Promise that resolves with the original value.
+
+inspect(value, options?)
+
 Returns a formatted string without printing.
 
 Options:
-- `depth?: number` – Maximum nesting depth (default: `30`)
-- `colors?: boolean` – Force colors (default: `true` in TTY)
-- `showHidden?: boolean` – Show non-enumerable properties
 
-### `trace(label?, options?)`
+· depth?: number – Maximum nesting depth (default: 30)
+· colors?: boolean – Force colors (default: true in TTY)
+· showHidden?: boolean – Show non-enumerable properties
+
+trace(label?, options?)
+
 Prints current stack trace with optional label and file:line location.
 
-### `measure(label, fn, options?)`
+measure(label, fn, options?)
+
 Measures execution time of a sync or async function.
 
 ```js
@@ -95,19 +105,19 @@ measure('sort', () => array.sort());
 await measure('fetch', async () => await api.call());
 ```
 
-## Philosophy
+Philosophy
 
-dumpkit **generates** debug representations without caring **where** they go. The same core can be reused for terminal, HTTP responses, files, or custom tooling.
+dumpkit generates debug representations without caring where they go. The same core can be reused for terminal, HTTP responses, files, or custom tooling.
 
-## Documentation
+Documentation
 
-- [Português](https://justino-code.github.io/dumpkit/pt/)
-- [English](https://justino-code.github.io/dumpkit/en/)
+· Português
+· English
 
-## Author
+Author
 
-**Justino Contingo** · [GitHub](https://github.com/justino-code)
+Justino Contingo · GitHub
 
-## License
+License
 
 MIT

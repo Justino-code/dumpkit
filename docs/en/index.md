@@ -11,7 +11,7 @@ sidebar: true
 Zero-dependency debugging for Node.js
 
 <div style="text-align: center; margin: 1rem 0 2rem 0;">
-  Inspired by Laravel's dump() and dd()
+  Inspired by PHP/Laravel's dump() and dd()
 </div>
 
 <div style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 3rem;">
