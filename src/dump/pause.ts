@@ -1,15 +1,16 @@
 // src/dump/pause.ts
 
 import { inspect } from '../core/inspect';
-import { flat } from '../core/renderers/flat';
-import { tree } from '../core/renderers/tree';
-import { table } from '../core/renderers/table';
 import { writeToStream } from './render';
 import type { DumpOptions } from '../shared/types/options';
+import * as readline from 'readline';
 
 export interface PauseOptions extends DumpOptions {
+  /** Message to display (default: 'Press ENTER to continue...') */
   message?: string;
+  /** Max wait time in ms (0 = infinite, default: 0) */
   timeout?: number;
+  /** Auto-continue if not TTY (default: true) */
   autoContinue?: boolean;
 }
 
@@ -28,50 +29,55 @@ async function waitForUser(options?: PauseOptions): Promise<void> {
 
   return new Promise((resolve) => {
     let timer: NodeJS.Timeout | undefined;
-    let resolved = false;
+    let didResolve = false;
 
-    const onData = (chunk: Buffer) => {
-      const input = chunk.toString();
-      // Detecta ENTER (pode ser \n, \r\n, \r)
-      if (input === '\n' || input === '\r\n' || input === '\r') {
-        if (!resolved) {
-          resolved = true;
-          cleanup();
-          resolve();
-        }
-      }
-    };
-
-    const onTimeout = () => {
-      if (!resolved) {
-        resolved = true;
-        const timeoutMsg = `\n[dp] Timeout (${timeout}ms). Continuing...\n`;
-        writeToStream(timeoutMsg, options?.stream);
-        cleanup();
-        resolve();
-      }
-    };
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
 
     const cleanup = () => {
       if (timer) clearTimeout(timer);
-      process.stdin.removeListener('data', onData);
-      // Não pausar o stdin globalmente; apenas remover o listener.
+      rl.close();
+    };
+
+    const handleResolve = () => {
+      if (didResolve) return;
+      didResolve = true;
+      cleanup();
+      resolve();
+    };
+
+    const handleTimeout = () => {
+      if (didResolve) return;
+      didResolve = true;
+      const timeoutMsg = `\n[dp] Timeout (${timeout}ms). Continuing...\n`;
+      writeToStream(timeoutMsg, options?.stream);
+      cleanup();
+      resolve();
     };
 
     if (timeout > 0) {
-      timer = setTimeout(onTimeout, timeout);
+      timer = setTimeout(handleTimeout, timeout);
     }
 
-    // Adiciona listener temporário
-    process.stdin.on('data', onData);
-    // Mostra a mensagem
-    writeToStream(`\n${message} `, options?.stream);
+    rl.question(`${message} `, () => {
+      handleResolve();
+    });
   });
 }
 
+/**
+ * Dump a value and pause execution until user presses ENTER.
+ *
+ * @param value - The value to dump
+ * @param options - Configuration options (depth, colors, view, etc.)
+ * @returns A promise that resolves with the original value when resumed
+ */
 export async function dp(value: unknown, options?: PauseOptions): Promise<unknown> {
-  const output: string = inspect(value, options);
-  
+  // Obter a análise e renderizar conforme a view (flat por padrão)
+  const output = inspect(value, options);
+
   writeToStream(output, options?.stream);
   await waitForUser(options);
   return value;

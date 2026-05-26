@@ -1,9 +1,6 @@
 // src/dump/dump.ts
 
 import { inspect } from '../core/inspect';
-import { flat } from '../core/renderers/flat';
-import { tree } from '../core/renderers/tree';
-import { table } from '../core/renderers/table';
 import { writeToStream } from './render';
 import type { DumpOptions } from '../shared/types/options';
 
