@@ -11,3 +11,4 @@ coverage/
 *.zip
 *.gz
 demo.*
+demo-*.*

@@ -4,6 +4,7 @@
   "type": "module",
   "description": "Debugging library for Node.js inspired by Laravel's dump() and dd()",
   "main": "dist/index.js",
+  
   "repository": {
     "type": "git",
     "url": "git+https://github.com/justino-code/dumpkit.git"
@@ -12,6 +13,7 @@
     "url": "https://github.com/justino-code/dumpkit/issues"
   },
   "homepage": "https://github.com/justino-code/dumpkit#readme",
+
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "exports": {
@@ -54,7 +56,6 @@
   "devDependencies": {
     "@types/node": "^20.0.0",
     "@vitest/coverage-v8": "^1.0.0",
-    "ts-node": "^10.9.2",
     "tsup": "^8.0.0",
     "typescript": "^5.0.0",
     "vitepress": "^1.6.4",

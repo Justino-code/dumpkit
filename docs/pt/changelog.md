@@ -5,13 +5,32 @@ Todas as alterações importantes neste projeto serão documentadas neste fichei
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/),
 e este projeto segue [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.2.0] - A definir
+## [0.2.0] - 2026-05-27
+
+### Adicionado
+- Função `analyze()` - análise semântica que retorna AnalysisNode
+- Suporte para opção `view` em `inspect()` e `dump()` (`flat`, `tree`, `table`)
+- Função `dp()` - dump e pausa (aguarda input do utilizador)
+- Deteção de referências partilhadas (`[Shared *N]`) além das circulares
+- Suporte para opção `stream` nas funções `trace()` e `measure()`
+- Suporte para timeout e mensagem personalizada nas funções de pausa
+- Auto-continuação em ambientes não TTY (CI/CD)
 
 ### Alterado
-- Stack trace agora filtra frames internos da lib, mostrando apenas código do utilizador
+- `inspect()` agora retorna `AnalysisNode` (breaking change)
+- `trace()` agora filtra frames internos da lib, mostrando apenas código do utilizador
+- `trace()` e `measure()` agora usam `writeToStream` em vez de `console.error` para consistência
+- Todas as funções agora suportam a opção `stream` consistente para redirecionamento
+- Valores padrão aumentados: depth 4→30, maxArrayLength 100→1000, maxStringLength 1000→5000, maxProperties 50→200
 
 ### Removido
 - Função `dpp()` - use a combinação `trace()` + `dp()` em vez disso
+
+### Corrigido
+- `trace()` agora mostra corretamente a localização em todos os ambientes
+- `dp()` agora funciona corretamente no Termux e ambientes não TTY
+- Deteção de referências circulares e partilhadas melhorada
+
 
 ## [0.2.0-beta] - 2026-05-21
 
@@ -31,14 +50,11 @@ e este projeto segue [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Aumentado `maxStringLength` padrão de 1000 para 5000
 - Aumentado `maxProperties` padrão de 50 para 200
 
-### Documentação
-- Adicionado guia de Combinações com composições úteis de funções
-- Adicionada documentação para `dp()` e `dpp()`
-- Atualizada documentação de `trace()` e `measure()` com opção `stream`
-- Adicionados exemplos de redirecionamento para ficheiros
-- Versões em Português e Inglês mantidas
-
 ## [0.1.1] - 2026-05-20
+
+### Alterado
+- Removido aviso de desenvolvimento do README
+- Atualizações na documentação
 
 ## [0.1.0] - 2026-05-20 (depreciada)
 
@@ -58,4 +74,4 @@ e este projeto segue [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Deteção automática de cores (TTY)
 - Forçar cores ligado/desligado via opções
 
-> **⚠️ Depreciada:** Use a versão `0.1.1` ou superior.
+> **⚠️ Depreciada:** Esta versão continha um aviso de desenvolvimento. Por favor, use a versão `0.1.1` ou superior.

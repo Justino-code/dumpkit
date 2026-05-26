@@ -5,13 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.2.0] - TBD
+## [0.2.0] - 2026-05-27
+
+### Added
+- `analyze()` function - semantic analysis returning AnalysisNode
+- Support for `view` option in `inspect()` and `dump()` (`flat`, `tree`, `table`)
+- `dp()` function - dump and pause (wait for user input)
+- Shared reference detection (`[Shared *N]`) in addition to circular references
+- Support for `stream` option in `trace()` and `measure()` functions
+- Support for custom timeout and message in pause functions
+- Auto-continue in non-TTY environments (CI/CD)
 
 ### Changed
-- Stack trace now filters internal library frames, showing only user code
+- `inspect()` now returns `AnalysisNode` (breaking change)
+- `trace()` now filters internal library frames, showing only user code
+- `trace()` and `measure()` now use `writeToStream` instead of `console.error` for consistency
+- All functions now support consistent `stream` option for output redirection
+- Increased defaults: depth 4→30, maxArrayLength 100→1000, maxStringLength 1000→5000, maxProperties 50→200
 
 ### Removed
 - `dpp()` function - use `trace()` + `dp()` combination instead
+
+### Fixed
+- `trace()` now correctly shows caller location in all environments
+- `dp()` now works correctly in Termux and non-TTY environments
+- Circular and shared reference detection improved
 
 ## [0.2.0-beta] - 2026-05-21
 
@@ -31,14 +49,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Increased default maxStringLength from 1000 to 5000
 - Increased default maxProperties from 50 to 200
 
-### Documentation
-- Added Combinations guide with useful function compositions
-- Added documentation for `dp()` and `dpp()`
-- Updated `trace()` and `measure()` docs with `stream` option
-- Added examples for redirecting output to files
-- Portuguese and English versions maintained
-
 ## [0.1.1] - 2026-05-20
+
+### Changed
+- Removed development warning from README
+- Documentation updates
 
 ## [0.1.0] - 2026-05-20 (deprecated)
 
@@ -58,4 +73,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Auto color detection (TTY)
 - Force colors on/off via options
 
-> **⚠️ Deprecated:** Please use `0.1.1` or later.
+> **⚠️ Deprecated:** This version contained a development warning. Please use `0.1.1` or later.

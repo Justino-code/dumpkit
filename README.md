@@ -1,169 +1,104 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/justino-code/dumpkit/main/docs/public/logo.svg" alt="dumpkit logo" width="400">
+</p>
+
 # dumpkit
 
-> Uma biblioteca minimalista e sem dependências para representação e inspeção de dados em runtime no Node.js.
-
-Inspirada na simplicidade do `dump()` e `dd()` do PHP/Laravel, a **dumpkit** evolui o conceito tradicional de debugging ao focar não apenas na impressão de valores, mas na geração de representações estruturadas e semanticamente legíveis dos dados durante a execução da aplicação.
-
-O núcleo da biblioteca é baseado na ideia de que debugging não deve limitar-se a `console.log()`, mas sim ajudar o desenvolvedor a compreender visualmente o estado, a estrutura e as relações dos dados em runtime.
+> Debugging library for Node.js inspired by Laravel's `dump()` and `dd()`
 
 <div align="center">
 
 [![npm version](https://img.shields.io/npm/v/dumpkit.svg)](https://www.npmjs.com/package/dumpkit)
+[![npm downloads](https://img.shields.io/npm/dm/dumpkit.svg)](https://www.npmjs.com/package/dumpkit)
 [![license](https://img.shields.io/github/license/justino-code/dumpkit)](https://github.com/justino-code/dumpkit/blob/main/LICENSE)
 [![node version](https://img.shields.io/node/v/dumpkit.svg)](https://nodejs.org)
 [![build status](https://img.shields.io/github/actions/workflow/status/justino-code/dumpkit/docs.yml?branch=main)](https://github.com/justino-code/dumpkit/actions)
+[![coverage](https://img.shields.io/codecov/c/github/justino-code/dumpkit)](https://codecov.io/gh/justino-code/dumpkit)
 [![typescript](https://img.shields.io/badge/TypeScript-Ready-blue)](https://www.typescriptlang.org)
+[![version](https://img.shields.io/badge/version-0.2.0-orange)](https://github.com/justino-code/dumpkit)
 
 </div>
 
-**Zero dependências · Zero configuração · API pequena e previsível**
+**Zero dependencies · Zero config · Simple by design**
 
----
+## Features
 
-## Filosofia
+- **dump()** – Display structured values instantly
+- **dd()** – Dump and die (exits process)
+- **inspect()** – Get formatted string without printing
+- **trace()** – Show stack trace with location
+- **measure()** – Time sync/async execution
+- **Circular reference safe**
+- **Shared reference detection** (`[Shared *N]`)
+- **Map, Set, Date, Error, RegExp support**
+- **Colors with auto-detection (or force on/off)**
+- **ESM + CommonJS**
 
-- **Zero dependências** – Nada além do Node.js.
-- **Zero configuração** – Funciona imediatamente, sem variáveis de ambiente ou ficheiros de setup.
-- **API pequena e previsível** – Cada função faz uma única coisa de forma clara.
-- **Representação antes de output** – Geramos estruturas semânticas; o destino (terminal, ficheiro, HTTP) é escolhido por si.
-- **Estruturas de dados devem ser compreensíveis visualmente** – Mapas, Sets, objetos aninhados, referências circulares são exibidos de forma legível.
-- **Simplicidade externa, inteligência interna** – A complexidade fica escondida, a API continua simples.
-- **Extensível por design** – O core pode ser usado para construir novos visualizadores.
-- **Foco em desenvolvimento e inspeção local** – Ferramenta para depurar, não para produção.
-
----
-
-## Núcleo da arquitetura
-
-O núcleo da dumpkit é responsável por **gerar representações estruturadas dos dados**, independentemente de onde essas representações serão exibidas.
-
-A biblioteca separa claramente:
-
-- **Representação** → responsabilidade do core (função `inspect()`)
-- **Destino/output** → responsabilidade externa (terminal, ficheiro, HTTP, etc.)
-
-Isto permite que diferentes formatos de visualização coexistam sem aumentar a complexidade da API pública.
-
----
-
-## Representações suportadas
-
-Dependendo da estrutura analisada, a biblioteca pode gerar automaticamente diferentes formas de representação:
-
-- visualização plana
-- tabelas
-- árvores hierárquicas
-- grafos ASCII
-- estruturas semânticas
-- representações compactas
-
-Essas representações são especialmente úteis para:
-
-- objetos complexos
-- ASTs
-- árvores binárias e n-árias
-- algoritmos de busca
-- estruturas recursivas
-- análise de fluxo e estado interno
-
----
-
-## Instalação
+## Installation
 
 ```bash
 yarn add dumpkit
-# ou
+```
+or
+
+```bash
 npm install dumpkit
 ```
 
----
-
-API principal
-
-dump()
-
-Renderiza e exibe representações estruturadas dos dados.
+## Quick start
 
 ```js
-import { dump } from 'dumpkit';
+import { dump, dd, inspect, trace, measure } from 'dumpkit';
 
-dump({ nome: 'João', tags: new Set(['admin', 'user']) });
+const user = { name: 'John', age: 30, tags: new Set(['admin', 'user']) };
+
+dump(user);                           // Pretty print to console
+
+const output = inspect(user);         // Get string without printing
+console.log('Debug:', output);
+
+trace('auth-checkpoint');             // Show where you are
+
+measure('db-query', () => {
+  // your code here
+  return heavyOperation();
+});
+
+dd(user);                             // Dump and exit
 ```
 
-dd()
+## API
 
-Renderiza os dados e encerra imediatamente o processo (dump and die).
+### `dump(value, options?)`
+Prints a formatted representation of the value to stderr. Returns the value unchanged (for chaining).
 
-```js
-dd(erro);
-```
+### `dd(value, options?)`
+Prints the value and calls `process.exit(1)`.
 
-dp()
+### `dp(value, options?)`
+Prints the value and **pauses execution** until the user presses ENTER. Returns a Promise.
 
-Renderiza os dados e pausa a execução até que o utilizador pressione ENTER.
+### `inspect(value, options?)`
+Returns a formatted string without printing. Supports `view` option: `'flat'`, `'tree'`, `'table'`.
 
-```js
-await dp(estado);
-```
+Options:
+- `view?: 'flat' | 'tree' | 'table'` – Visualisation style (default: `'flat'`)
+- `depth?: number` – Maximum nesting depth (default: `30`)
+- `colors?: boolean` – Force colors (default: `true` in TTY)
+- `showHidden?: boolean` – Show non-enumerable properties
 
-inspect()
+### `trace(label?, options?)`
+Prints current stack trace with optional label and file:line location.
 
-Gera representações estruturadas sem realizar output. O inspect() funciona como o núcleo semântico da biblioteca, responsável por analisar estruturas e produzir representações intermediárias reutilizáveis por diferentes renderizadores.
+### `measure(label, fn, options?)`
+Measures execution time of a sync or async function. Returns `{ result, measurement }`.
 
-```js
-const repr = inspect(ast, { depth: 5 });
-fs.writeFileSync('ast.json', repr);
-```
+### `analyze(value, options?)`
+Returns a structured `AnalysisNode` for programmatic inspection of data structures.
 
-trace()
+## Philosophy
 
-Exibe informações de rastreamento e fluxo de execução.
-
-```js
-trace('checkpoint-antes-de-validar');
-```
-
-measure()
-
-Mede o tempo de execução de operações e blocos de código.
-
-```js
-const { result, measurement } = measure('query', () => db.busca(sql));
-console.log(`Duração: ${measurement.durationMs}ms`);
-```
-
----
-
-Exemplo rápido
-
-```js
-import { dump, dd, inspect, trace, measure, dp } from 'dumpkit';
-
-const utilizador = {
-  id: 1,
-  nome: 'Maria',
-  permissoes: new Set(['ler', 'escrever']),
-  ultimoAcesso: new Date()
-};
-
-dump(utilizador);                     // mostra estrutura
-trace('processamento-iniciado');      // localização no código
-
-const resultado = await measure('calculo', () => algoritmoPesado());
-dump({ resultado });
-
-await dp(utilizador);                 // pausa até ENTER
-
-dd(utilizador);                       // mostra e termina processo
-```
-
----
-
-Objetivo
-
-Fornecer uma ferramenta leve e inteligente para compreensão visual de estruturas de dados em runtime, reduzindo o atrito do debugging tradicional e transformando a inspeção de dados em uma experiência mais clara, expressiva e útil para desenvolvimento e aprendizado.
-
----
+dumpkit **generates** debug representations without caring **where** they go. The same core can be reused for terminal, HTTP responses, files, or custom tooling.
 
 ## Documentation
 
@@ -174,6 +109,6 @@ Fornecer uma ferramenta leve e inteligente para compreensão visual de estrutura
 
 **Justino Contingo** · [GitHub](https://github.com/justino-code)
 
-License
+## License
 
 MIT
