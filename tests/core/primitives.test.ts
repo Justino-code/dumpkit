@@ -13,7 +13,11 @@ import {
   formatDate,
   formatError,
   formatRegExp,
-  formatPrimitive,
+  formatPrimitiveFromNode,
+  formatDateFromNode,
+  formatErrorFromNode,
+  formatRegExpFromNode,
+  formatFunctionFromNode,
 } from '../../src/core/primitives';
 import type { ResolvedFormatOptions } from '../../src/shared/types/dto';
 
@@ -71,20 +75,20 @@ describe('primitives', () => {
 
   describe('formatString', () => {
     it('should wrap strings in double quotes', () => {
-      const result = formatString('hello', defaultOptions, false);
+      const result = formatString('hello', defaultOptions.maxStringLength, false);
       expect(result).toBe('"hello"');
     });
 
     it('should escape special characters', () => {
-      const result = formatString('he"llo', defaultOptions, false);
+      const result = formatString('he"llo', defaultOptions.maxStringLength, false);
       expect(result).toBe('"he\\"llo"');
     });
 
     it('should truncate long strings and add ellipsis', () => {
       const longString = 'a'.repeat(200);
-      const options = { ...defaultOptions, maxStringLength: 50 };
-      const result = formatString(longString, options, false);
-
+      const maxLength = 50;
+      const result = formatString(longString, maxLength, false);
+      // A string deve ter: 50 chars + 2 aspas + 3 pontos = 55
       expect(result).toContain('...');
       expect(result.length).toBeLessThan(100);
     });
@@ -106,7 +110,6 @@ describe('primitives', () => {
     it('should format anonymous function', () => {
       const fn = () => { };
       const result = formatFunction(fn, false);
-      // Pode ser 'anonymous' ou 'fn' dependendo da implementação
       expect(result).toMatch(/\[Function: (anonymous|fn)\]/);
     });
   });
@@ -138,11 +141,59 @@ describe('primitives', () => {
     });
   });
 
-  describe('formatPrimitive', () => {
-    it('should dispatch to correct formatter', () => {
-      const result = formatPrimitive('hello', defaultOptions, false);
-      expect(result.result).toBe('"hello"');
-      expect(result.truncated).toBe(false);
+  // Novos testes para funções `*FromNode`
+  describe('formatPrimitiveFromNode', () => {
+    it('should format string from node', () => {
+      const node = { value: 'hello' };
+      expect(formatPrimitiveFromNode(node, false)).toBe('"hello"');
+    });
+
+    it('should format number from node', () => {
+      const node = { value: 42 };
+      expect(formatPrimitiveFromNode(node, false)).toBe('42');
+    });
+
+    it('should format null from node', () => {
+      const node = { value: null };
+      expect(formatPrimitiveFromNode(node, false)).toBe('null');
+    });
+  });
+
+  describe('formatDateFromNode', () => {
+    it('should format valid date from node', () => {
+      const node = { isValid: true, value: '2024-01-01T00:00:00.000Z' };
+      expect(formatDateFromNode(node, false)).toContain('Date(');
+    });
+
+    it('should format invalid date from node', () => {
+      const node = { isValid: false, value: 'Invalid' };
+      expect(formatDateFromNode(node, false)).toBe('Date(Invalid)');
+    });
+  });
+
+  describe('formatErrorFromNode', () => {
+    it('should format error from node', () => {
+      const node = { name: 'Error', message: 'Something went wrong' };
+      expect(formatErrorFromNode(node, false)).toBe('Error: Something went wrong');
+    });
+  });
+
+  describe('formatRegExpFromNode', () => {
+    it('should format regexp from node', () => {
+      const node = { source: 'test', flags: 'gi' };
+      expect(formatRegExpFromNode(node, false)).toBe('/test/gi');
+    });
+  });
+
+  describe('formatFunctionFromNode', () => {
+    it('should format named function from node', () => {
+      const node = { name: 'testFn' };
+      expect(formatFunctionFromNode(node, false)).toBe('[Function: testFn]');
+    });
+
+    it('should format anonymous function from node', () => {
+      const node = { name: '' };
+      expect(formatFunctionFromNode(node, false)).toBe('[Function: anonymous]');
     });
   });
 });

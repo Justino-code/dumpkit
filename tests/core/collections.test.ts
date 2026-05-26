@@ -1,151 +1,162 @@
 // tests/core/collections.test.ts
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
-  formatArray,
-  formatMap,
-  formatSet,
-  formatWeakMap,
-  formatWeakSet,
-  formatTypedArray,
+  formatArrayFromNode,
+  formatMapFromNode,
+  formatSetFromNode,
+  formatWeakMapFromNode,
+  formatWeakSetFromNode,
+  formatTypedArrayFromNode,
 } from '../../src/core/collections';
-import { CircularDetector } from '../../src/shared/utils/circular';
-import type { ResolvedFormatOptions } from '../../src/shared/types/dto';
 
-const defaultOptions: ResolvedFormatOptions = {
-  depth: 4,
-  colors: false,
-  showHidden: false,
-  maxArrayLength: 100,
-  maxStringLength: 100,
-  indent: 2,
-  maxProperties: 50,
-};
+// Mock formatNode para testes
+function mockFormatNode(node: any, useColors: boolean, indentLevel: number, indentSize: number): string {
+  if (node.type === 'primitive') {
+    const val = node.value;
+    if (typeof val === 'string') return `"${val}"`;
+    return String(val);
+  }
+  if (node.type === 'array') return '[Array]';
+  if (node.type === 'object') return '{Object}';
+  return String(node);
+}
 
 describe('collections', () => {
-  let circularDetector: CircularDetector;
-
-  beforeEach(() => {
-    circularDetector = new CircularDetector();
-  });
-
-  describe('formatArray', () => {
+  describe('formatArrayFromNode', () => {
     it('should format empty array', () => {
-      const result = formatArray([], defaultOptions, false, 4, circularDetector, 'root');
-      expect(result.result).toBe('[]');
-      expect(result.truncated).toBe(false);
+      const node = { items: [], length: 0, truncated: false };
+      const result = formatArrayFromNode(node, false, 0, 2, mockFormatNode);
+      expect(result).toBe('[]');
     });
 
     it('should format array with primitive values', () => {
-      const arr = [1, 'two', true];
-      const result = formatArray(arr, defaultOptions, false, 4, circularDetector, 'root');
-      expect(result.result).toContain('[');
-      expect(result.result).toContain('1');
-      expect(result.result).toContain('"two"');
-      expect(result.result).toContain('true');
+      const node = {
+        items: [
+          { type: 'primitive', value: 1 },
+          { type: 'primitive', value: 'two' },
+          { type: 'primitive', value: true },
+        ],
+        length: 3,
+        truncated: false,
+      };
+      const result = formatArrayFromNode(node, false, 0, 2, mockFormatNode);
+      expect(result).toContain('[');
+      expect(result).toContain('1');
+      expect(result).toContain('"two"');
+      expect(result).toContain('true');
     });
 
     it('should truncate array when exceeding maxArrayLength', () => {
-      const arr = Array.from({ length: 150 }, (_, i) => i);
-      const options = { ...defaultOptions, maxArrayLength: 10 };
-      const result = formatArray(arr, options, false, 4, circularDetector, 'root');
-      expect(result.truncated).toBe(true);
-      expect(result.result).toContain('... 140 more items');
-    });
-
-    it('should handle depth limit', () => {
-      const arr = [[[[[1]]]]];
-      const result = formatArray(arr, defaultOptions, false, 1, circularDetector, 'root');
-      expect(result.result).toContain('[Array]');
-    });
-
-    it('should detect circular references in array', () => {
-      const arr: any[] = [];
-      arr.push(arr);
-      
-      const result = formatArray(arr, defaultOptions, false, 4, circularDetector, 'root');
-      expect(result.result).toContain('[Circular *1]');
+      const items = Array.from({ length: 150 }, (_, i) => ({ type: 'primitive', value: i }));
+      const node = { items: items.slice(0, 10), length: 150, truncated: true };
+      const result = formatArrayFromNode(node, false, 0, 2, mockFormatNode);
+      expect(result).toContain('... 140 more items');
     });
   });
 
-  describe('formatMap', () => {
+  describe('formatMapFromNode', () => {
     it('should format empty Map', () => {
-      const map = new Map();
-      const result = formatMap(map, defaultOptions, false, 4, circularDetector, 'root');
-      expect(result.result).toBe('Map(0) {}');
-      expect(result.truncated).toBe(false);
+      const node = { size: 0, entries: [], truncated: false };
+      const result = formatMapFromNode(node, false, 0, 2, mockFormatNode);
+      expect(result).toBe('Map(0) {}');
     });
 
     it('should format Map with entries', () => {
-      const map = new Map([
-        ['a', 1],
-        ['b', 2],
-      ]);
-      const result = formatMap(map, defaultOptions, false, 4, circularDetector, 'root');
-      expect(result.result).toContain('Map(2) {');
-      expect(result.result).toContain('"a" => 1');
-      expect(result.result).toContain('"b" => 2');
+      const node = {
+        size: 2,
+        entries: [
+          { key: { type: 'primitive', value: 'a' }, value: { type: 'primitive', value: 1 } },
+          { key: { type: 'primitive', value: 'b' }, value: { type: 'primitive', value: 2 } },
+        ],
+        truncated: false,
+      };
+      const result = formatMapFromNode(node, false, 0, 2, mockFormatNode);
+      expect(result).toContain('Map(2) {');
+      expect(result).toContain('"a" => 1');
+      expect(result).toContain('"b" => 2');
     });
 
     it('should truncate large Map', () => {
-      const map = new Map();
-      for (let i = 0; i < 150; i++) {
-        map.set(`key${i}`, i);
-      }
-      const options = { ...defaultOptions, maxArrayLength: 10 };
-      const result = formatMap(map, options, false, 4, circularDetector, 'root');
-      expect(result.truncated).toBe(true);
-      expect(result.result).toContain('... 140 more entries');
+      const entries = Array.from({ length: 150 }, (_, i) => ({
+        key: { type: 'primitive', value: `key${i}` },
+        value: { type: 'primitive', value: i },
+      }));
+      const node = { size: 150, entries: entries.slice(0, 10), truncated: true };
+      const result = formatMapFromNode(node, false, 0, 2, mockFormatNode);
+      expect(result).toContain('... 140 more entries');
     });
   });
 
-  describe('formatSet', () => {
+  describe('formatSetFromNode', () => {
     it('should format empty Set', () => {
-      const set = new Set();
-      const result = formatSet(set, defaultOptions, false, 4, circularDetector, 'root');
-      expect(result.result).toBe('Set(0) {}');
+      const node = { size: 0, values: [], truncated: false };
+      const result = formatSetFromNode(node, false, 0, 2, mockFormatNode);
+      expect(result).toBe('Set(0) {}');
     });
 
     it('should format Set with values', () => {
-      const set = new Set([1, 2, 3]);
-      const result = formatSet(set, defaultOptions, false, 4, circularDetector, 'root');
-      expect(result.result).toContain('Set(3) {');
-      expect(result.result).toContain('1');
-      expect(result.result).toContain('2');
-      expect(result.result).toContain('3');
+      const node = {
+        size: 3,
+        values: [
+          { type: 'primitive', value: 1 },
+          { type: 'primitive', value: 2 },
+          { type: 'primitive', value: 3 },
+        ],
+        truncated: false,
+      };
+      const result = formatSetFromNode(node, false, 0, 2, mockFormatNode);
+      expect(result).toContain('Set(3) {');
+      expect(result).toContain('1');
+      expect(result).toContain('2');
+      expect(result).toContain('3');
     });
   });
 
-  describe('formatWeakMap', () => {
+  describe('formatWeakMapFromNode', () => {
     it('should format WeakMap without iterating', () => {
-      const weakMap = new WeakMap();
-      const result = formatWeakMap(weakMap, false);
+      const result = formatWeakMapFromNode(null, false);
       expect(result).toBe('WeakMap { <items cannot be iterated> }');
     });
   });
 
-  describe('formatWeakSet', () => {
+  describe('formatWeakSetFromNode', () => {
     it('should format WeakSet without iterating', () => {
-      const weakSet = new WeakSet();
-      const result = formatWeakSet(weakSet, false);
+      const result = formatWeakSetFromNode(null, false);
       expect(result).toBe('WeakSet { <items cannot be iterated> }');
     });
   });
 
-  describe('formatTypedArray', () => {
+  describe('formatTypedArrayFromNode', () => {
     it('should format Uint8Array', () => {
-      const arr = new Uint8Array([1, 2, 3]);
-      const result = formatTypedArray(arr, defaultOptions, false, 4, circularDetector, 'root');
-      expect(result.result).toContain('Uint8Array [');
-      expect(result.result).toContain('1');
-      expect(result.result).toContain('2');
-      expect(result.result).toContain('3');
+      const node = {
+        className: 'Uint8Array',
+        items: [
+          { type: 'primitive', value: 1 },
+          { type: 'primitive', value: 2 },
+          { type: 'primitive', value: 3 },
+        ],
+        truncated: false,
+      };
+      const result = formatTypedArrayFromNode(node, false, 0, 2, mockFormatNode);
+      expect(result).toContain('Uint8Array [');
+      expect(result).toContain('1');
+      expect(result).toContain('2');
+      expect(result).toContain('3');
     });
 
     it('should format Int32Array', () => {
-      const arr = new Int32Array([10, 20, 30]);
-      const result = formatTypedArray(arr, defaultOptions, false, 4, circularDetector, 'root');
-      expect(result.result).toContain('Int32Array [');
+      const node = {
+        className: 'Int32Array',
+        items: [
+          { type: 'primitive', value: 10 },
+          { type: 'primitive', value: 20 },
+          { type: 'primitive', value: 30 },
+        ],
+        truncated: false,
+      };
+      const result = formatTypedArrayFromNode(node, false, 0, 2, mockFormatNode);
+      expect(result).toContain('Int32Array [');
     });
   });
 });

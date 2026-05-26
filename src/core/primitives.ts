@@ -1,6 +1,5 @@
 // src/core/primitives.ts
 
-import type { ResolvedFormatOptions } from '../shared/types/dto';
 import { colorize } from '../shared/utils/color';
 
 /**
@@ -48,29 +47,28 @@ export function formatBigInt(value: bigint, useColors: boolean): string {
 /**
  * Format string value with quotes and escaping
  */
-export function formatString(value: string, options: ResolvedFormatOptions, useColors: boolean): string {
-  const maxLength = options.maxStringLength;
+export function formatString(value: string, maxLength: number, useColors: boolean): string {
   let str = value;
   let truncated = false;
-  
+
   if (str.length > maxLength) {
     str = str.slice(0, maxLength);
     truncated = true;
   }
-  
+
   const escaped = str
     .replace(/\\/g, '\\\\')
     .replace(/"/g, '\\"')
     .replace(/\n/g, '\\n')
     .replace(/\r/g, '\\r')
     .replace(/\t/g, '\\t');
-  
+
   let result = `"${escaped}"`;
-  
+
   if (truncated) {
     result += colorize('...', 'gray', useColors);
   }
-  
+
   return colorize(result, 'green', useColors);
 }
 
@@ -97,13 +95,10 @@ export function formatFunction(value: Function, useColors: boolean): string {
  */
 export function formatDate(value: Date, useColors: boolean): string {
   const valid = !isNaN(value.getTime());
-  
   if (!valid) {
     return colorize('Date(Invalid)', 'red', useColors);
   }
-  
-  const isoString = value.toISOString();
-  return colorize(`Date(${isoString})`, 'magenta', useColors);
+  return colorize(`Date(${value.toISOString()})`, 'magenta', useColors);
 }
 
 /**
@@ -112,12 +107,10 @@ export function formatDate(value: Date, useColors: boolean): string {
 export function formatError(value: Error, useColors: boolean): string {
   const name = value.name || 'Error';
   const message = value.message || '';
-  
   let result = name;
   if (message) {
     result += `: ${message}`;
   }
-  
   return colorize(result, 'red', useColors);
 }
 
@@ -128,57 +121,58 @@ export function formatRegExp(value: RegExp, useColors: boolean): string {
   return colorize(value.toString(), 'magenta', useColors);
 }
 
+// ============================================
+// Funções para formatar a partir de AnalysisNode
+// ============================================
+
 /**
- * Format primitive values - main dispatcher
+ * Format primitive value from AnalysisNode
  */
-export function formatPrimitive(
-  value: unknown,
-  options: ResolvedFormatOptions,
-  useColors: boolean
-): { result: string; truncated: boolean } {
-  if (value === null) {
-    return { result: formatNull(useColors), truncated: false };
+export function formatPrimitiveFromNode(node: { value: unknown }, useColors: boolean): string {
+  const val = node.value;
+  if (val === null) return colorize('null', 'gray', useColors);
+  if (val === undefined) return colorize('undefined', 'gray', useColors);
+  if (typeof val === 'string') return colorize(`"${val}"`, 'green', useColors);
+  if (typeof val === 'number' || typeof val === 'bigint') {
+    const str = String(val);
+    if (str === 'NaN' || str === 'Infinity' || str === '-Infinity')
+      return colorize(str, 'yellow', useColors);
+    return colorize(str, 'yellow', useColors);
   }
-  
-  if (value === undefined) {
-    return { result: formatUndefined(useColors), truncated: false };
+  if (typeof val === 'boolean') return colorize(String(val), 'yellow', useColors);
+  if (typeof val === 'symbol') {
+    const desc = val.description ? `(${val.description})` : '';
+    return colorize(`Symbol${desc}`, 'cyan', useColors);
   }
-  
-  if (typeof value === 'boolean') {
-    return { result: formatBoolean(value, useColors), truncated: false };
-  }
-  
-  if (typeof value === 'number') {
-    return { result: formatNumber(value, useColors), truncated: false };
-  }
-  
-  if (typeof value === 'bigint') {
-    return { result: formatBigInt(value, useColors), truncated: false };
-  }
-  
-  if (typeof value === 'string') {
-    return { result: formatString(value, options, useColors), truncated: false };
-  }
-  
-  if (typeof value === 'symbol') {
-    return { result: formatSymbol(value, useColors), truncated: false };
-  }
-  
-  if (typeof value === 'function') {
-    return { result: formatFunction(value, useColors), truncated: false };
-  }
-  
-  if (value instanceof Date) {
-    return { result: formatDate(value, useColors), truncated: false };
-  }
-  
-  if (value instanceof Error) {
-    return { result: formatError(value, useColors), truncated: false };
-  }
-  
-  if (value instanceof RegExp) {
-    return { result: formatRegExp(value, useColors), truncated: false };
-  }
-  
-  return { result: '', truncated: false };
+  return String(val);
+}
+
+/**
+ * Format date from AnalysisNode
+ */
+export function formatDateFromNode(node: { isValid: boolean; value: string }, useColors: boolean): string {
+  if (!node.isValid) return colorize('Date(Invalid)', 'red', useColors);
+  return colorize(`Date(${node.value})`, 'magenta', useColors);
+}
+
+/**
+ * Format error from AnalysisNode
+ */
+export function formatErrorFromNode(node: { name: string; message: string }, useColors: boolean): string {
+  return colorize(`${node.name}: ${node.message}`, 'red', useColors);
+}
+
+/**
+ * Format regexp from AnalysisNode
+ */
+export function formatRegExpFromNode(node: { source: string; flags: string }, useColors: boolean): string {
+  return colorize(`/${node.source}/${node.flags}`, 'magenta', useColors);
+}
+
+/**
+ * Format function from AnalysisNode
+ */
+export function formatFunctionFromNode(node: { name: string }, useColors: boolean): string {
+  const displayName = node.name || 'anonymous';
+  return colorize(`[Function: ${displayName}]`, 'cyan', useColors);
 }

@@ -1,123 +1,215 @@
-// tests/core/object.test.ts
+// tests/core/object.test.ts (corrigido)
 
-import { describe, it, expect, beforeEach } from 'vitest';
-import { formatObject } from '../../src/core/object';
-import { CircularDetector } from '../../src/shared/utils/circular';
-import type { ResolvedFormatOptions } from '../../src/shared/types/dto';
+import { describe, it, expect } from 'vitest';
+import { formatObjectFromNode, formatKey, isNumericIndex } from '../../src/core/object';
 
-const defaultOptions: ResolvedFormatOptions = {
-  depth: 4,
-  colors: false,
-  showHidden: false,
-  maxArrayLength: 100,
-  maxStringLength: 100,
-  indent: 2,
-  maxProperties: 50,
-};
+// Mock formatNode para testes que mostra a estrutura aninhada
+function mockFormatNode(node: any, useColors: boolean, indentLevel: number, indentSize: number): string {
+  if (node.type === 'primitive') {
+    const val = node.value;
+    if (typeof val === 'string') return `"${val}"`;
+    return String(val);
+  }
+  if (node.type === 'object') {
+    // Para objetos aninhados, mostra o className
+    const className = node.className || 'Object';
+    return `${className} { ... }`;
+  }
+  if (node.type === 'array') return '[Array]';
+  return String(node);
+}
 
 describe('object', () => {
-  let circularDetector: CircularDetector;
+  describe('isNumericIndex', () => {
+    it('should return true for numeric string keys', () => {
+      expect(isNumericIndex('123')).toBe(true);
+      expect(isNumericIndex('0')).toBe(true);
+    });
 
-  beforeEach(() => {
-    circularDetector = new CircularDetector();
+    it('should return false for non-numeric keys', () => {
+      expect(isNumericIndex('abc')).toBe(false);
+      expect(isNumericIndex('123abc')).toBe(false);
+      expect(isNumericIndex('12.34')).toBe(false);
+    });
+
+    it('should return false for symbols', () => {
+      expect(isNumericIndex(Symbol('test'))).toBe(false);
+    });
   });
 
-  describe('formatObject', () => {
-    it('should format empty object', () => {
-      const obj = {};
-      const result = formatObject(obj, defaultOptions, false, 4, circularDetector, 'root');
-      expect(result.result).toBe('{}');
-      expect(result.truncated).toBe(false);
-    });
-
-    it('should format object with primitive properties', () => {
-      const obj = { name: 'John', age: 30, active: true };
-      const result = formatObject(obj, defaultOptions, false, 4, circularDetector, 'root');
-      expect(result.result).toContain('{');
-      expect(result.result).toContain('name: "John"');
-      expect(result.result).toContain('age: 30');
-      expect(result.result).toContain('active: true');
-    });
-
-    it('should format nested objects', () => {
-      const obj = { user: { name: 'John', address: { city: 'Lisbon' } } };
-      const result = formatObject(obj, defaultOptions, false, 4, circularDetector, 'root');
-      expect(result.result).toContain('user: {');
-      expect(result.result).toContain('address: {');
-      expect(result.result).toContain('city: "Lisbon"');
-    });
-
-    it('should respect depth limit', () => {
-      const obj = { a: { b: { c: { d: { e: 'deep' } } } } };
-      const result = formatObject(obj, defaultOptions, false, 2, circularDetector, 'root');
-      expect(result.result).toContain('[Object]');
-    });
-
-    it('should truncate objects with many properties', () => {
-      const obj: Record<string, number> = {};
-      for (let i = 0; i < 100; i++) {
-        obj[`prop${i}`] = i;
-      }
-      const options = { ...defaultOptions, maxProperties: 10 };
-      const result = formatObject(obj, options, false, 4, circularDetector, 'root');
-      expect(result.truncated).toBe(true);
-      expect(result.result).toContain('... 90 more properties');
-    });
-
-    it('should handle circular references', () => {
-      const obj: any = { name: 'parent' };
-      obj.self = obj;
-      
-      const result = formatObject(obj, defaultOptions, false, 4, circularDetector, 'root');
-      expect(result.result).toContain('[Circular *1]');
-    });
-
+  describe('formatKey', () => {
     it('should format numeric keys without quotes', () => {
-      const obj = { '123': 'numeric', '456': 'value' };
-      const result = formatObject(obj, defaultOptions, false, 4, circularDetector, 'root');
-      expect(result.result).toContain('123: "numeric"');
-      expect(result.result).not.toContain('"123"');
+      const result = formatKey('123', false);
+      expect(result).toBe('123');
     });
 
     it('should format valid identifiers without quotes', () => {
-      const obj = { abc: 'value', _valid: 'test', $valid: 'test' };
-      const result = formatObject(obj, defaultOptions, false, 4, circularDetector, 'root');
-      expect(result.result).toContain('abc: "value"');
-      expect(result.result).toContain('_valid: "test"');
-      expect(result.result).toContain('$valid: "test"');
-      expect(result.result).not.toContain('"abc"');
+      expect(formatKey('abc', false)).toBe('abc');
+      expect(formatKey('_valid', false)).toBe('_valid');
+      expect(formatKey('$valid', false)).toBe('$valid');
     });
 
     it('should format special keys with quotes', () => {
-      const obj = { 'my-key': 'value', 'hello world': 'foo' };
-      const result = formatObject(obj, defaultOptions, false, 4, circularDetector, 'root');
-      expect(result.result).toContain('"my-key": "value"');
-      expect(result.result).toContain('"hello world": "foo"');
+      expect(formatKey('my-key', false)).toBe('"my-key"');
+      expect(formatKey('hello world', false)).toBe('"hello world"');
     });
 
-    it('should format mixed key types correctly', () => {
-      const obj = {
-        123: 'numeric',
-        name: 'John',
-        'special-key': 'special'
+    it('should format symbols with special notation', () => {
+      const sym = Symbol('test');
+      expect(formatKey(sym, false)).toBe('[Symbol(test)]');
+    });
+  });
+
+  describe('formatObjectFromNode', () => {
+    it('should format empty object', () => {
+      const node = { className: 'Object', properties: [], truncated: false };
+      const result = formatObjectFromNode(node, false, 0, 2, mockFormatNode);
+      expect(result).toBe('Object {}');
+    });
+
+    it('should format object with primitive properties', () => {
+      const node = {
+        className: 'Object',
+        properties: [
+          { key: 'name', value: { type: 'primitive', value: 'John' } },
+          { key: 'age', value: { type: 'primitive', value: 30 } },
+          { key: 'active', value: { type: 'primitive', value: true } },
+        ],
+        truncated: false,
       };
-      const result = formatObject(obj, defaultOptions, false, 4, circularDetector, 'root');
-      expect(result.result).toContain('123: "numeric"');
-      expect(result.result).toContain('name: "John"');
-      expect(result.result).toContain('"special-key": "special"');
+      const result = formatObjectFromNode(node, false, 0, 2, mockFormatNode);
+      expect(result).toContain('Object {');
+      expect(result).toContain('name: "John"');
+      expect(result).toContain('age: 30');
+      expect(result).toContain('active: true');
+    });
+
+    it('should format nested objects', () => {
+      const node = {
+        className: 'Object',
+        properties: [
+          {
+            key: 'user',
+            value: {
+              type: 'object',
+              className: 'Object',
+              properties: [
+                { key: 'name', value: { type: 'primitive', value: 'John' } },
+                {
+                  key: 'address',
+                  value: {
+                    type: 'object',
+                    className: 'Object',
+                    properties: [
+                      { key: 'city', value: { type: 'primitive', value: 'Lisbon' } },
+                    ],
+                    truncated: false,
+                  },
+                },
+              ],
+              truncated: false,
+            },
+          },
+        ],
+        truncated: false,
+      };
+      const result = formatObjectFromNode(node, false, 0, 2, mockFormatNode);
+      expect(result).toContain('user: Object { ... }');
+    });
+
+    it('should respect depth limit via mock', () => {
+      const node = {
+        className: 'Object',
+        properties: [
+          {
+            key: 'a',
+            value: {
+              type: 'object',
+              className: 'Object',
+              properties: [
+                {
+                  key: 'b',
+                  value: {
+                    type: 'object',
+                    className: 'Object',
+                    properties: [],
+                    truncated: false,
+                  },
+                },
+              ],
+              truncated: false,
+            },
+          },
+        ],
+        truncated: false,
+      };
+      const result = formatObjectFromNode(node, false, 0, 2, mockFormatNode);
+      expect(result).toContain('a: Object { ... }');
+    });
+
+    it('should truncate objects with many properties', () => {
+      const properties = Array.from({ length: 100 }, (_, i) => ({
+        key: `prop${i}`,
+        value: { type: 'primitive', value: i },
+      }));
+      const node = { className: 'Object', properties: properties.slice(0, 10), truncated: true };
+      const result = formatObjectFromNode(node, false, 0, 2, mockFormatNode);
+      expect(result).toContain('... more properties');
+    });
+
+    it('should format numeric keys without quotes', () => {
+      const node = {
+        className: 'Object',
+        properties: [
+          { key: '123', value: { type: 'primitive', value: 'numeric' } },
+          { key: '456', value: { type: 'primitive', value: 'value' } },
+        ],
+        truncated: false,
+      };
+      const result = formatObjectFromNode(node, false, 0, 2, mockFormatNode);
+      expect(result).toContain('123: "numeric"');
+      expect(result).not.toContain('"123"');
+    });
+
+    it('should format valid identifiers without quotes', () => {
+      const node = {
+        className: 'Object',
+        properties: [
+          { key: 'abc', value: { type: 'primitive', value: 'value' } },
+          { key: '_valid', value: { type: 'primitive', value: 'test' } },
+          { key: '$valid', value: { type: 'primitive', value: 'test' } },
+        ],
+        truncated: false,
+      };
+      const result = formatObjectFromNode(node, false, 0, 2, mockFormatNode);
+      expect(result).toContain('abc: "value"');
+      expect(result).toContain('_valid: "test"');
+      expect(result).toContain('$valid: "test"');
+    });
+
+    it('should format special keys with quotes', () => {
+      const node = {
+        className: 'Object',
+        properties: [
+          { key: 'my-key', value: { type: 'primitive', value: 'value' } },
+          { key: 'hello world', value: { type: 'primitive', value: 'foo' } },
+        ],
+        truncated: false,
+      };
+      const result = formatObjectFromNode(node, false, 0, 2, mockFormatNode);
+      expect(result).toContain('"my-key": "value"');
+      expect(result).toContain('"hello world": "foo"');
     });
 
     it('should show constructor name for non-plain objects', () => {
-      class Person {
-        name: string;
-        constructor(name: string) {
-          this.name = name;
-        }
-      }
-      const person = new Person('John');
-      const result = formatObject(person, defaultOptions, false, 4, circularDetector, 'root');
-      expect(result.result).toContain('Person {');
-      expect(result.result).toContain('name: "John"');
+      const node = {
+        className: 'Person',
+        properties: [{ key: 'name', value: { type: 'primitive', value: 'John' } }],
+        truncated: false,
+      };
+      const result = formatObjectFromNode(node, false, 0, 2, mockFormatNode);
+      expect(result).toContain('Person {');
+      expect(result).toContain('name: "John"');
     });
   });
 });

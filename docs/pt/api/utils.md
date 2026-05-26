@@ -1,6 +1,6 @@
 # Utilitários
 
-O dumpkit expõe algumas utilidades internas para casos de uso avançados.
+A `dumpkit` expõe algumas utilidades internas para casos de uso avançados.
 
 ## shouldUseColors()
 
@@ -98,16 +98,18 @@ console.log(`${COLORS.red}Erro${COLORS.reset}: ${mensagem}`);
 
 ## CircularDetector
 
-Deteta referências circulares em objetos.
+Deteta referências **circulares** e **partilhadas** durante a travessia de objetos.
 
 ### Sintaxe
 
 ```ts
 class CircularDetector {
-  has(obj: object): boolean;
-  add(obj: object, path: string): number;
-  get(obj: object, currentPath: string): { marker: string; refId: number; originalPath: string };
+  enter(obj: object, path: string): { id: number; isCircular: boolean; isShared: boolean; originalPath?: string };
+  leave(obj: object): void;
   reset(): void;
+  has(obj: object): boolean;
+  getRefId(obj: object): number;
+  getOriginalPath(obj: object): string;
 }
 ```
 
@@ -115,10 +117,12 @@ class CircularDetector {
 
 | Método | Descrição |
 |--------|-----------|
-| `has(obj)` | Verifica se objeto já foi visto |
-| `add(obj, path)` | Regista um novo objeto |
-| `get(obj, currentPath)` | Obtém info circular |
-| `reset()` | Limpa o detector |
+| `enter(obj, path)` | Regista a entrada num objeto. Retorna estado (circular, partilhado ou novo) |
+| `leave(obj)` | Remove o objeto da pilha após processar os seus filhos |
+| `reset()` | Limpa o detector para uma nova travessia |
+| `has(obj)` | Verifica se o objeto já foi visitado |
+| `getRefId(obj)` | Obtém o ID único do objeto |
+| `getOriginalPath(obj)` | Obtém o caminho original onde o objeto foi encontrado |
 
 ### Exemplo
 
@@ -126,14 +130,37 @@ class CircularDetector {
 import { CircularDetector } from 'dumpkit/utils';
 
 const detector = new CircularDetector();
-const obj = { nome: 'teste' };
 
-detector.add(obj, 'root');
-console.log(detector.has(obj)); // true
+const shared = { valor: 42 };
+const obj = { a: shared, b: shared };
 
-const info = detector.get(obj, 'current');
-console.log(info.marker); // [Circular *1]
+// Primeira visita: objeto novo
+const result1 = detector.enter(shared, 'obj.a');
+console.log(result1.isCircular); // false
+console.log(result1.isShared);   // false
+console.log(result1.id);         // 1
+
+detector.leave(shared);
+
+// Segunda visita: objeto partilhado
+const result2 = detector.enter(shared, 'obj.b');
+console.log(result2.isShared);   // true
+console.log(result2.originalPath); // 'obj.a'
+
+// Referência circular
+const circular = {};
+detector.enter(circular, 'root');
+const result3 = detector.enter(circular, 'root.self');
+console.log(result3.isCircular); // true
 ```
+
+### Deteção de referências
+
+| Tipo | Condição | Exemplo |
+|------|----------|---------|
+| **Novo objeto** | Primeira vez que o objeto é encontrado | `{ valor: 42 }` |
+| **Circular** | Objeto já está na pilha atual de processamento | `obj.self = obj` |
+| **Partilhado** | Objeto já foi visitado noutro ramo da árvore | `{ a: shared, b: shared }` |
 
 ---
 
@@ -166,4 +193,18 @@ function meuLogger() {
   const caller = getCallerLocation(1);
   console.log(`Chamado de: ${caller.file}:${caller.line}`);
 }
+```
+
+## StackFrame
+
+Estrutura de um frame da stack.
+
+```ts
+type StackFrame = {
+  file: string;         // Caminho do ficheiro
+  line: number;         // Número da linha
+  column: number;       // Número da coluna
+  functionName: string; // Nome da função
+  raw: string;          // Linha raw original
+};
 ```
