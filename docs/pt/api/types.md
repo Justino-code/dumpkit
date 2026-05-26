@@ -1,6 +1,6 @@
 # Tipos TypeScript
 
-O dumpkit inclui tipos TypeScript completos para todas as APIs.
+A `dumpkit` inclui tipos TypeScript completos para todas as APIs.
 
 ## InspectOptions
 
@@ -8,13 +8,14 @@ Opções para a função `inspect()`.
 
 ```ts
 type InspectOptions = {
-  depth?: number;           // Profundidade máxima (padrão: 30)
-  colors?: boolean;         // Forçar cores (padrão: auto)
-  showHidden?: boolean;     // Mostrar propriedades não enumeráveis (padrão: false)
-  maxArrayLength?: number;  // Máx. itens do array (padrão: 1000)
-  maxStringLength?: number; // Máx. comprimento string (padrão: 5000)
-  indent?: number;          // Espaços por indentação (padrão: 2)
-  maxProperties?: number;   // Máx. propriedades objeto (padrão: 200)
+  view?: 'flat' | 'tree' | 'table'; // Estilo de visualização (padrão: 'flat')
+  depth?: number;                    // Profundidade máxima (padrão: 30)
+  colors?: boolean;                  // Forçar cores (padrão: auto)
+  showHidden?: boolean;              // Mostrar propriedades não enumeráveis (padrão: false)
+  maxArrayLength?: number;           // Máx. itens do array (padrão: 1000)
+  maxStringLength?: number;          // Máx. comprimento da string (padrão: 5000)
+  indent?: number;                   // Espaços por indentação (padrão: 2)
+  maxProperties?: number;            // Máx. propriedades do objeto (padrão: 200)
 };
 ```
 
@@ -37,6 +38,7 @@ type TraceOptions = {
   colors?: boolean;    // Forçar cores (padrão: auto)
   indent?: number;     // Espaços por indentação (padrão: 2)
   showStack?: boolean; // Mostrar stack completo (padrão: false)
+  stream?: NodeJS.WriteStream; // Stream de saída (padrão: stderr)
 };
 ```
 
@@ -46,8 +48,66 @@ Opções para a função `measure()`.
 
 ```ts
 type MeasureOptions = {
-  colors?: boolean; // Forçar cores (padrão: auto)
-  indent?: number;  // Espaços por indentação (padrão: 2)
+  colors?: boolean;    // Forçar cores (padrão: auto)
+  indent?: number;     // Espaços por indentação (padrão: 2)
+  stream?: NodeJS.WriteStream; // Stream de saída (padrão: stderr)
+};
+```
+
+## PauseOptions
+
+Opções para a função `dp()`.
+
+```ts
+type PauseOptions = InspectOptions & {
+  message?: string;         // Mensagem a mostrar (padrão: 'Press ENTER to continue...')
+  timeout?: number;         // Tempo máximo em ms (0 = infinito, padrão: 0)
+  autoContinue?: boolean;   // Auto-continuar em CI/ambiente não TTY (padrão: true)
+};
+```
+
+## AnalyzeOptions
+
+Opções para a função `analyze()`.
+
+```ts
+type AnalyzeOptions = {
+  depth?: number;           // Profundidade máxima (padrão: 30)
+  maxArrayLength?: number;  // Máx. itens do array (padrão: 1000)
+  maxStringLength?: number; // Máx. comprimento da string (padrão: 5000)
+  maxProperties?: number;   // Máx. propriedades do objeto (padrão: 200)
+  showHidden?: boolean;     // Mostrar propriedades não enumeráveis (padrão: false)
+};
+```
+
+## AnalysisNode
+
+Estrutura de um nó da análise semântica.
+
+```ts
+type AnalysisNode = 
+  | PrimitiveNode
+  | ObjectNode
+  | ArrayNode
+  | MapNode
+  | SetNode
+  | DateNode
+  | ErrorNode
+  | RegExpNode
+  | FunctionNode
+  | TypedArrayNode
+  | WeakMapNode
+  | WeakSetNode
+  | PromiseNode
+  | CircularNode
+  | SharedNode;
+
+// Exemplo: ObjectNode
+type ObjectNode = {
+  type: 'object';
+  className: string;
+  properties: { key: string | symbol; value: AnalysisNode; enumerable: boolean }[];
+  truncated?: boolean;
 };
 ```
 
@@ -87,6 +147,7 @@ import { inspect, dump } from 'dumpkit';
 import type { InspectOptions, DumpOptions } from 'dumpkit';
 
 const opts: InspectOptions = {
+  view: 'tree',
   depth: 2,
   colors: false
 };
@@ -107,9 +168,13 @@ interface MyDumpOptions extends DumpOptions {
 ### Type guards
 
 ```ts
-import type { StackFrame } from 'dumpkit';
+import type { StackFrame, AnalysisNode } from 'dumpkit';
 
 function processFrame(frame: StackFrame) {
   console.log(`${frame.file}:${frame.line}`);
+}
+
+function isObjectNode(node: AnalysisNode): node is ObjectNode {
+  return node.type === 'object';
 }
 ```

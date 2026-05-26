@@ -5,57 +5,175 @@
 ### Objetos Aninhados
 
 ```js
-const usuario = {
+const user = {
   id: 1,
-  nome: 'João Silva',
-  email: 'joao@exemplo.com',
-  perfil: {
-    idade: 30,
-    cidade: 'Lisboa',
-    endereco: {
-      rua: 'Rua Augusta',
-      codigoPostal: '1100-053'
+  name: 'John Smith',
+  email: 'john@example.com',
+  profile: {
+    age: 30,
+    city: 'Lisbon',
+    address: {
+      street: 'Augusta Street',
+      zipCode: '1100-053'
     }
   },
-  interesses: ['programação', 'música', 'fotografia']
+  interests: ['programming', 'music', 'photography']
 };
 
-dump(usuario);
+dump(user);
+```
+
+**Saída (vista flat):**
+```
+{
+  id: 1,
+  name: "John Smith",
+  email: "john@example.com",
+  profile: {
+    age: 30,
+    city: "Lisbon",
+    address: {
+      street: "Augusta Street",
+      zipCode: "1100-053"
+    }
+  },
+  interests: [
+    "programming",
+    "music",
+    "photography"
+  ]
+}
 ```
 
 ### Map e Set
 
 ```js
-const permissoes = new Map([
-  ['admin', ['criar', 'ler', 'atualizar', 'eliminar']],
-  ['user', ['ler']]
+const permissions = new Map([
+  ['admin', ['create', 'read', 'update', 'delete']],
+  ['user', ['read']]
 ]);
 
 const tags = new Set(['nodejs', 'debugging', 'opensource']);
 
 const config = {
-  permissoes,
+  permissions,
   tags,
   meta: {
-    versao: '1.0.0',
-    ambiente: 'desenvolvimento'
+    version: '1.0.0',
+    environment: 'development'
   }
 };
 
 dump(config);
 ```
 
-## Referências Circulares
-
-O dumpkit lida automaticamente com objetos que referenciam a si próprios:
+### Vista em árvore
 
 ```js
-const pessoa = { nome: 'João' };
-const empresa = { nome: 'TechCorp', dono: pessoa };
-pessoa.empresa = empresa;  // Referência circular!
+dump(config, { view: 'tree' });
+```
 
-dump(pessoa);
-// Output: { nome: "João", empresa: { nome: "TechCorp", dono: [Circular *1] } }
+**Saída:**
+```
+Object
+├── permissions: Map(2)
+│   ├── "admin" => Array(4)
+│   │   ├── "create"
+│   │   ├── "read"
+│   │   ├── "update"
+│   │   └── "delete"
+│   └── "user" => Array(1)
+│       └── "read"
+├── tags: Set(3)
+│   ├── "nodejs"
+│   ├── "debugging"
+│   └── "opensource"
+└── meta: Object
+    ├── version: "1.0.0"
+    └── environment: "development"
+```
+
+## Referências Circulares e Partilhadas
+
+A `dumpkit` detecta automaticamente tanto referências circulares como referências partilhadas.
+
+### Referência Circular
+
+Ocorre quando um objeto faz referência a si próprio, formando um ciclo.
+
+```js
+const circular = { name: 'parent' };
+circular.self = circular;
+
+dump(circular);
+```
+
+**Saída:**
+```
+{
+  name: "parent",
+  self: [Circular *1]
+}
+```
+
+### Referência Partilhada
+
+Ocorre quando o mesmo objeto é referenciado por múltiplas propriedades ou objetos.
+
+```js
+const shared = { name: 'shared', value: 42 };
+const data = {
+  first: shared,
+  second: shared,
+  third: shared
+};
+
+dump(data);
+```
+
+**Saída:**
+```
+{
+  first: {
+    name: "shared",
+    value: 42
+  },
+  second: [Shared *1],
+  third: [Shared *1]
+}
+```
+
+> `[Circular *1]` indica uma referência circular (o objeto referencia-se a si próprio).  
+> `[Shared *1]` indica que o mesmo objeto já foi exibido anteriormente (neste caso, na propriedade `first`).
+
+### Exemplo misto
+
+```js
+const shared = { value: 42 };
+const circular = { name: 'circ' };
+circular.self = circular;
+
+const data = {
+  sharedA: shared,
+  sharedB: shared,
+  circular: circular
+};
+
+dump(data);
+```
+
+**Saída:**
+```
+{
+  sharedA: {
+    value: 42
+  },
+  sharedB: [Shared *1],
+  circular: {
+    name: "circ",
+    self: [Circular *1]
+  }
+}
 ```
 
 ## Debugging com trace()
@@ -63,35 +181,35 @@ dump(pessoa);
 ### Localizar onde o código está a falhar
 
 ```js
-function processarPedido(pedido) {
-  trace('processar-pedido-inicio');
+function processOrder(order) {
+  trace('process-order-start');
   
-  if (!pedido.valido) {
-    trace('pedido-invalido');
-    return { erro: 'Pedido inválido' };
+  if (!order.valid) {
+    trace('invalid-order');
+    return { error: 'Invalid order' };
   }
   
-  trace('processar-pedido-fim');
-  return { sucesso: true };
+  trace('process-order-end');
+  return { success: true };
 }
 ```
 
 ### Mostrar stack completo
 
 ```js
-function nivel3() {
-  trace('chamada-profunda', { showStack: true });
+function level3() {
+  trace('deep-call', { showStack: true });
 }
 
-function nivel2() {
-  nivel3();
+function level2() {
+  level3();
 }
 
-function nivel1() {
-  nivel2();
+function level1() {
+  level2();
 }
 
-nivel1();
+level1();
 // Mostra toda a cadeia de chamadas
 ```
 
@@ -100,42 +218,46 @@ nivel1();
 ### Operações síncronas
 
 ```js
-function ordenarGrandeArray() {
+function sortLargeArray() {
   const arr = Array.from({ length: 100000 }, () => Math.random());
   return arr.sort();
 }
 
-const ordenado = measure('ordenacao-grande-array', () => ordenarGrandeArray());
+const { result, measurement } = measure('sort-large-array', () => sortLargeArray());
+console.log(`Tempo: ${measurement.durationMs}ms`);
 ```
 
 ### Operações assíncronas
 
 ```js
-async function buscarUsuarios() {
-  const response = await fetch('https://api.exemplo.com/usuarios');
+async function fetchUsers() {
+  const response = await fetch('https://api.example.com/users');
   return response.json();
 }
 
-const usuarios = await measure('buscar-usuarios-api', () => buscarUsuarios());
+const { result, measurement } = await measure('fetch-users-api', () => fetchUsers());
+console.log(`Tempo: ${measurement.durationMs}ms`);
 ```
 
 ### Comparar diferentes abordagens
 
 ```js
 // Abordagem 1: for loop
-measure('for-loop', () => {
-  let soma = 0;
+const { measurement: m1 } = measure('for-loop', () => {
+  let sum = 0;
   for (let i = 0; i < 1000000; i++) {
-    soma += i;
+    sum += i;
   }
-  return soma;
+  return sum;
 });
 
 // Abordagem 2: reduce
-measure('array-reduce', () => {
+const { measurement: m2 } = measure('array-reduce', () => {
   const arr = Array.from({ length: 1000000 }, (_, i) => i);
   return arr.reduce((acc, val) => acc + val, 0);
 });
+
+console.log(`For-loop: ${m1.durationMs}ms, Reduce: ${m2.durationMs}ms`);
 ```
 
 ## Controlo de Output
@@ -143,27 +265,80 @@ measure('array-reduce', () => {
 ### Desligar cores
 
 ```js
-dump(objeto, { colors: false });
+dump(object, { colors: false });
 ```
 
 ### Limitar profundidade
 
 ```js
-const dadosProfundos = { a: { b: { c: { d: { e: 'muito fundo' } } } } };
+const deepData = { a: { b: { c: { d: { e: 'very deep' } } } } };
 
-dump(dadosProfundos, { depth: 2 });
-// Output: { a: { b: [Object] } }
+dump(deepData, { depth: 2 });
 ```
 
-### Limpar output para testes
+**Saída:**
+```
+{
+  a: {
+    b: [Object]
+  }
+}
+```
+
+### Vista em tabela (array de objetos)
+
+```js
+const users = [
+  { name: 'Alice', age: 30, city: 'Lisbon' },
+  { name: 'Bob', age: 25, city: 'Porto' }
+];
+
+dump(users, { view: 'table' });
+```
+
+**Saída:**
+```
+name   | age | city
+───────┼─────┼───────
+Alice  | 30  | Lisbon
+Bob    | 25  | Porto
+```
+
+### Output limpo para testes
 
 ```js
 import { inspect } from 'dumpkit';
 
 // Num ficheiro de teste
-const resultado = funcaoComplexa();
-const output = inspect(resultado, { colors: false });
-expect(output).toContain('valor-esperado');
+const result = complexFunction();
+const output = inspect(result, { colors: false });
+expect(output).toContain('expected-value');
+```
+
+## Pausa Interativa com dp()
+
+```js
+import { dp } from 'dumpkit';
+
+async function debugProcess() {
+  const data = { step: 1, status: 'processing' };
+  await dp(data, { message: 'Verifique os dados e pressione ENTER' });
+  
+  // Após ENTER, continua
+  console.log('Processo continuando...');
+}
+```
+
+## Análise Programática com analyze()
+
+```js
+import { analyze } from 'dumpkit';
+
+const data = { name: 'John', age: 30 };
+const analysis = analyze(data);
+
+console.log(analysis.type);           // 'object'
+console.log(analysis.properties[0].key); // 'name'
 ```
 
 ## Integração com Logger
@@ -174,13 +349,19 @@ expect(output).toContain('valor-esperado');
 import { inspect } from 'dumpkit';
 import { writeFileSync } from 'fs';
 
-const estado = {
+const state = {
   timestamp: new Date().toISOString(),
-  memoria: process.memoryUsage(),
+  memory: process.memoryUsage(),
   uptime: process.uptime()
 };
 
-writeFileSync('debug.json', inspect(estado, { colors: false }));
+writeFileSync('debug.json', inspect(state, { colors: false }));
+```
+
+### Enviar para ficheiro com formato árvore
+
+```js
+writeFileSync('tree.txt', inspect(state, { view: 'tree', colors: false }));
 ```
 
 ### Middleware para Express
@@ -210,14 +391,25 @@ function debugOnly(message, data) {
   }
 }
 
-debugOnly('Configuração carregada', config);
+debugOnly('Config loaded', config);
 ```
 
 ## Combinar com console.time
 
 ```js
-console.time('operacao');
-measure('operacao-medida', () => operacaoPesada());
-console.timeEnd('operacao');
+console.time('operation');
+measure('measured-operation', () => heavyOperation());
+console.timeEnd('operation');
 // Ambos os métodos funcionam lado a lado
+```
+
+## Redirecionar output para ficheiro
+
+```js
+import { createWriteStream } from 'fs';
+const logStream = createWriteStream('./debug.log');
+
+dump(data, { stream: logStream });
+trace('checkpoint', { stream: logStream });
+await measure('query', () => db.query(sql), { stream: logStream });
 ```

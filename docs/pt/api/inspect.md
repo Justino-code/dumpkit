@@ -1,6 +1,6 @@
 # inspect()
 
-Retorna uma string formatada de um valor sem imprimir.
+Retorna uma representação formatada de um valor como string, sem imprimir.
 
 ## Sintaxe
 
@@ -17,14 +17,15 @@ inspect(valor: unknown, opcoes?: InspectOptions): string
 
 ## Retorno
 
-Retorna uma string formatada pronta para ser usada como desejar.
+Retorna uma string formatada pronta a ser usada como desejar.
 
 ## Opções
 
 | Opção | Tipo | Padrão | Descrição |
 |-------|------|--------|-----------|
+| `view` | `'flat' \| 'tree' \| 'table'` | `'flat'` | Estilo de visualização |
 | `depth` | `number` | `30` | Profundidade máxima de aninhamento |
-| `colors` | `boolean` | `auto` | `true` = cores ligadas, `false` = desligadas, `auto` = baseado no TTY |
+| `colors` | `boolean` | `auto` | `true` = forçar cores, `false` = sem cores, `auto` = baseado no TTY |
 | `showHidden` | `boolean` | `false` | Mostrar propriedades não enumeráveis |
 | `maxArrayLength` | `number` | `1000` | Máximo de itens do array a mostrar |
 | `maxStringLength` | `number` | `5000` | Comprimento máximo da string |
@@ -32,12 +33,37 @@ Retorna uma string formatada pronta para ser usada como desejar.
 
 ## Exemplos
 
-### Uso básico
+### Uso básico (vista flat)
 
 ```js
 const output = inspect({ nome: 'João', idade: 30 });
 console.log(output);
 // { nome: "João", idade: 30 }
+```
+
+### Vista em árvore
+
+```js
+const arvore = inspect(dados, { view: 'tree' });
+console.log(arvore);
+// Object
+// ├── nome: "João"
+// └── idade: 30
+```
+
+### Vista em tabela (array de objetos)
+
+```js
+const usuarios = [
+  { nome: 'Alice', idade: 30 },
+  { nome: 'Bob', idade: 25 }
+];
+const tabela = inspect(usuarios, { view: 'table' });
+console.log(tabela);
+// nome   | idade
+// ───────┼───────
+// Alice  | 30
+// Bob    | 25
 ```
 
 ### Guardar em ficheiro
@@ -75,20 +101,23 @@ test('deve retornar estrutura correta', () => {
 
 ## Diferença entre inspect() e dump()
 
-| Função | Retorna string? | Imprime no terminal? |
-|--------|----------------|---------------------|
-| `inspect()` | ✅ Sim | ❌ Não |
-| `dump()` | ❌ Não | ✅ Sim |
+| Função | Retorna string? | Imprime no terminal? | Efeitos secundários |
+|--------|----------------|---------------------|---------------------|
+| `inspect()` | ✅ Sim | ❌ Não | Nenhum (pura) |
+| `dump()` | ❌ Não | ✅ Sim | Escreve no stream |
 
 ## Porquê usar inspect()?
 
 - **Função pura** - sem efeitos secundários
+- **Múltiplas vistas** - `flat`, `tree`, `table` para diferentes necessidades
 - **Reutilizável** - mesma formatação para diferentes destinos
 - **Testável** - fácil de verificar output em testes
-- **Extensível** - constrói as tuas próprias ferramentas em cima
+- **Extensível** - construa as suas próprias ferramentas em cima
 
 ## Dicas
 
-- Usa `inspect()` quando precisas da string para processamento
-- Usa `dump()` quando queres apenas ver o valor rapidamente
-- Desliga as cores (`colors: false`) ao guardar em ficheiros ou enviar via HTTP
+- Use `inspect()` quando precisa da string para processamento
+- Use `dump()` quando quer apenas ver o valor rapidamente
+- Desligue as cores (`colors: false`) ao guardar em ficheiros ou enviar via HTTP
+- Use `view: 'tree'` para compreender estruturas aninhadas
+- Use `view: 'table'` para arrays de objetos homogéneos

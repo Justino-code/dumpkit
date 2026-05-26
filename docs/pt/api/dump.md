@@ -25,6 +25,7 @@ Retorna o `valor` original inalterado - permite encadeamento.
 
 | Opção | Tipo | Padrão | Descrição |
 |-------|------|--------|-----------|
+| `view` | `'flat' \| 'tree' \| 'table'` | `'flat'` | Estilo de visualização |
 | `depth` | `number` | `30` | Profundidade máxima de aninhamento |
 | `colors` | `boolean` | `auto` | `true` = cores ligadas, `false` = desligadas, `auto` = baseado no TTY |
 | `showHidden` | `boolean` | `false` | Mostrar propriedades não enumeráveis |
@@ -35,22 +36,96 @@ Retorna o `valor` original inalterado - permite encadeamento.
 
 ### Exemplos
 
-#### Uso básico
+#### Uso básico (vista flat)
 
 ```js
 dump({ nome: 'João', idade: 30 });
 ```
 
-#### Com opções
+**Saída:**
+```
+{
+  nome: "João",
+  idade: 30
+}
+```
+
+#### Vista em árvore
 
 ```js
-dump(obj, { depth: 2, colors: false });
+const dados = {
+  nome: 'João',
+  endereco: {
+    cidade: 'Lisboa',
+    rua: 'Augusta'
+  }
+};
+
+dump(dados, { view: 'tree' });
+```
+
+**Saída:**
+```
+Object
+├── nome: "João"
+└── endereco: Object
+    ├── cidade: "Lisboa"
+    └── rua: "Augusta"
+```
+
+#### Vista em tabela (array de objetos)
+
+```js
+const usuarios = [
+  { nome: 'Alice', idade: 30, cidade: 'Lisboa' },
+  { nome: 'Bob', idade: 25, cidade: 'Porto' }
+];
+
+dump(usuarios, { view: 'table' });
+```
+
+**Saída:**
+```
+nome   | idade | cidade
+───────┼───────┼────────
+Alice  | 30    | Lisboa
+Bob    | 25    | Porto
+```
+
+#### Com profundidade limitada
+
+```js
+const profundo = { a: { b: { c: { d: 'fundo' } } } };
+dump(profundo, { depth: 2 });
+```
+
+**Saída:**
+```
+{
+  a: {
+    b: [Object]
+  }
+}
+```
+
+#### Sem cores
+
+```js
+dump({ erro: 'Falha' }, { colors: false });
+```
+
+**Saída (sem códigos ANSI):**
+```
+{
+  erro: "Falha"
+}
 ```
 
 #### Encadeamento
 
 ```js
 const resultado = dump(user).processar();
+// O valor de user é mostrado, depois processar() é chamado
 ```
 
 #### Stream personalizado
@@ -59,6 +134,7 @@ const resultado = dump(user).processar();
 import { createWriteStream } from 'fs';
 const stream = createWriteStream('./debug.log');
 dump(dados, { stream });
+// O output é escrito no ficheiro debug.log
 ```
 
 ---
@@ -90,10 +166,19 @@ Nunca retorna - chama `process.exit(1)`.
 
 ```js
 function handler(req) {
-  dd(req); // Mostra o request e para
+  dd(req);
   // Este código nunca é executado
 }
 ```
+
+**Saída:**
+```
+{
+  method: "GET",
+  url: "/api/users"
+}
+```
+(O processo termina após a saída)
 
 #### Debugging condicional
 
@@ -116,6 +201,8 @@ if (erro) {
 
 - Usa `dump()` para inspecionar valores durante o fluxo normal
 - Usa `dd()` para parar a execução num ponto específico
+- Usa `view: 'tree'` para compreender estruturas aninhadas
+- Usa `view: 'table'` para arrays de objetos homogéneos
 - O encadeamento com `dump()` permite debug não intrusivo:
 
 ```js

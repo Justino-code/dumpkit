@@ -39,6 +39,7 @@ export default defineConfig({
             {
               text: 'API Reference',
               items: [
+                { text: 'analyze()', link: '/pt/api/analyze' },
                 { text: 'dump() & dd()', link: '/pt/api/dump' },
                 { text: 'dp()', link: '/pt/api/pause' },
                 { text: 'inspect()', link: '/pt/api/inspect' },
@@ -86,8 +87,9 @@ export default defineConfig({
             {
               text: 'API Reference',
               items: [
+                { text: 'analyze()', link: '/en/api/analyze' },
                 { text: 'dump() & dd()', link: '/en/api/dump' },
-                { text: 'dp()', link: '/pt/api/pause' },
+                { text: 'dp()', link: '/en/api/pause' },
                 { text: 'inspect()', link: '/en/api/inspect' },
                 { text: 'trace()', link: '/en/api/trace' },
                 { text: 'measure()', link: '/en/api/measure' },

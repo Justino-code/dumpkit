@@ -1,6 +1,6 @@
 # TypeScript Types
 
-dumpkit includes complete TypeScript types for all APIs.
+`dumpkit` includes complete TypeScript types for all APIs.
 
 ## InspectOptions
 
@@ -8,13 +8,14 @@ Options for the `inspect()` function.
 
 ```ts
 type InspectOptions = {
-  depth?: number;           // Maximum depth (default: 30)
-  colors?: boolean;         // Force colors (default: auto)
-  showHidden?: boolean;     // Show non-enumerable properties (default: false)
-  maxArrayLength?: number;  // Max array items (default: 1000)
-  maxStringLength?: number; // Max string length (default: 1000)
-  indent?: number;          // Spaces per indentation (default: 2)
-  maxProperties?: number;   // Max object properties (default: 200)
+  view?: 'flat' | 'tree' | 'table'; // Visualisation style (default: 'flat')
+  depth?: number;                    // Maximum depth (default: 30)
+  colors?: boolean;                  // Force colors (default: auto)
+  showHidden?: boolean;              // Show non-enumerable properties (default: false)
+  maxArrayLength?: number;           // Max array items (default: 1000)
+  maxStringLength?: number;          // Max string length (default: 5000)
+  indent?: number;                   // Spaces per indentation (default: 2)
+  maxProperties?: number;            // Max object properties (default: 200)
 };
 ```
 
@@ -37,6 +38,7 @@ type TraceOptions = {
   colors?: boolean;    // Force colors (default: auto)
   indent?: number;     // Spaces per indentation (default: 2)
   showStack?: boolean; // Show full stack (default: false)
+  stream?: NodeJS.WriteStream; // Output stream (default: stderr)
 };
 ```
 
@@ -46,8 +48,66 @@ Options for the `measure()` function.
 
 ```ts
 type MeasureOptions = {
-  colors?: boolean; // Force colors (default: auto)
-  indent?: number;  // Spaces per indentation (default: 2)
+  colors?: boolean;    // Force colors (default: auto)
+  indent?: number;     // Spaces per indentation (default: 2)
+  stream?: NodeJS.WriteStream; // Output stream (default: stderr)
+};
+```
+
+## PauseOptions
+
+Options for the `dp()` function.
+
+```ts
+type PauseOptions = InspectOptions & {
+  message?: string;         // Message to display (default: 'Press ENTER to continue...')
+  timeout?: number;         // Max wait time in ms (0 = infinite, default: 0)
+  autoContinue?: boolean;   // Auto-continue in CI/non-TTY environment (default: true)
+};
+```
+
+## AnalyzeOptions
+
+Options for the `analyze()` function.
+
+```ts
+type AnalyzeOptions = {
+  depth?: number;           // Maximum depth (default: 30)
+  maxArrayLength?: number;  // Max array items (default: 1000)
+  maxStringLength?: number; // Max string length (default: 5000)
+  maxProperties?: number;   // Max object properties (default: 200)
+  showHidden?: boolean;     // Show non-enumerable properties (default: false)
+};
+```
+
+## AnalysisNode
+
+Structure of a semantic analysis node.
+
+```ts
+type AnalysisNode = 
+  | PrimitiveNode
+  | ObjectNode
+  | ArrayNode
+  | MapNode
+  | SetNode
+  | DateNode
+  | ErrorNode
+  | RegExpNode
+  | FunctionNode
+  | TypedArrayNode
+  | WeakMapNode
+  | WeakSetNode
+  | PromiseNode
+  | CircularNode
+  | SharedNode;
+
+// Example: ObjectNode
+type ObjectNode = {
+  type: 'object';
+  className: string;
+  properties: { key: string | symbol; value: AnalysisNode; enumerable: boolean }[];
+  truncated?: boolean;
 };
 ```
 
@@ -87,6 +147,7 @@ import { inspect, dump } from 'dumpkit';
 import type { InspectOptions, DumpOptions } from 'dumpkit';
 
 const opts: InspectOptions = {
+  view: 'tree',
   depth: 2,
   colors: false
 };
@@ -107,9 +168,13 @@ interface MyDumpOptions extends DumpOptions {
 ### Type guards
 
 ```ts
-import type { StackFrame } from 'dumpkit';
+import type { StackFrame, AnalysisNode } from 'dumpkit';
 
 function processFrame(frame: StackFrame) {
   console.log(`${frame.file}:${frame.line}`);
+}
+
+function isObjectNode(node: AnalysisNode): node is ObjectNode {
+  return node.type === 'object';
 }
 ```

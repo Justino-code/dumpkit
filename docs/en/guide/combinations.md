@@ -22,13 +22,25 @@ const { result } = measure('operation', () => fn());
 dump(result);
 ```
 
+### Dump with tree view
+
+```js
+dump(structure, { view: 'tree' });
+```
+
+### Dump with table view
+
+```js
+dump(users, { view: 'table' });
+```
+
 ### Dump and pause
 
 ```js
 await dp(value);
 ```
 
-### Dump, stack and pause (`dpp`)
+### Dump, stack and pause
 
 ```js
 trace();
@@ -54,6 +66,28 @@ dd(result);
 ```js
 const str = inspect(object, { colors: false });
 fs.writeFileSync('debug.json', str);
+```
+
+### Save tree to file
+
+```js
+const treeStr = inspect(structure, { view: 'tree', colors: false });
+fs.writeFileSync('tree.txt', treeStr);
+```
+
+### Programmatic analysis
+
+```js
+const analysis = analyze(data);
+console.log(analysis.type);
+console.log(analysis.properties.length);
+```
+
+### Detect circular references
+
+```js
+const analysis = analyze(obj);
+const isCircular = analysis.properties.some(p => p.value.type === 'circular');
 ```
 
 ### Multiple values in dump
@@ -89,6 +123,7 @@ await measure('query', () => db.query(sql), { stream });
 |------|-------------|------|
 | `ddd` | Dump with stack trace | `dump(value); trace()` |
 | `ddt` | Dump with timing | `dump(measure('op', () => fn()).result)` |
+| `ddtv` | Dump with timing and tree view | `dump(measure('op', () => fn()).result, { view: 'tree' })` |
 | `dp` | Dump and pause | `await dp(value)` |
 | `dpp` | Dump, stack and pause | `trace(); await dp(value)` |
 | `ddds` | Dump, stack and die | `trace(); dd(value)` |
@@ -100,11 +135,14 @@ await measure('query', () => db.query(sql), { stream });
 | `id` | Inspect and save | `fs.writeFileSync('log', inspect(obj, { colors: false }))` |
 | `cd` | Conditional dump | `if (debug) dump(data)` |
 | `cm` | Compare measurements | `const a = measure('A', fnA).measurement; const b = measure('B', fnB).measurement; dump({ a, b })` |
+| `tree` | Tree view | `dump(obj, { view: 'tree' })` |
+| `table` | Table view | `dump(arr, { view: 'table' })` |
+| `analyze` | Programmatic analysis | `const analysis = analyze(obj)` |
 
 ---
 
 ## Conclusion
 
-The **6 base functions** – `dump`, `dd`, `dp`, `inspect`, `trace`, `measure` – form a small vocabulary. With them, you can **combine infinitely** to solve any debugging need.
+The **7 base functions** – `dump`, `dd`, `dp`, `inspect`, `trace`, `measure`, `analyze` – form a small vocabulary. With them, you can **combine infinitely** to solve any debugging need.
 
 This documentation only suggests some useful patterns, **not an exhaustive list**. Feel free to create your own combinations and share them with the community.

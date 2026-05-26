@@ -1,28 +1,29 @@
 # dp()
 
+> **⚠️ WARNING:** The `dp()` function currently prevents the process from terminating naturally after the last pause. You may need to press `Ctrl+C` to exit. This issue will be fixed in a future release. As a workaround, you can call `process.exit(0)` after the last `dp()` call.
+
 Pauses program execution for interactive inspection.
 
-## dp()
+---
 
-Shows a value and pauses execution until the user presses ENTER.
-
-### Syntax
+## Syntax
 
 ```ts
 dp(value: unknown, options?: PauseOptions): Promise<unknown>
 ```
 
-### Parameters
+## Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `value` | `unknown` | The value to display |
 | `options` | `PauseOptions` | Configuration options (optional) |
 
-### Options
+## Options
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
+| `view` | `'flat' \| 'tree' \| 'table'` | `'flat'` | Visualisation style |
 | `message` | `string` | `"Press ENTER to continue..."` | Message to display |
 | `timeout` | `number` | `0` | Max wait time in ms (0 = infinite) |
 | `autoContinue` | `boolean` | `true` | Auto-continue in CI/non-TTY environment |
@@ -30,51 +31,141 @@ dp(value: unknown, options?: PauseOptions): Promise<unknown>
 | `colors` | `boolean` | `auto` | Force colors |
 | `stream` | `WriteStream` | `stderr` | Output stream |
 
-### Return value
+## Return value
 
 Returns a Promise that resolves with the original value when the pause ends.
 
-### Examples
+---
 
-#### Basic usage
+## Examples
+
+### Basic usage
 
 ```js
-await dp(user);
-// Shows user and waits for ENTER
+await dp({ name: 'John', age: 30 });
 ```
 
-#### Custom message
+**Output:**
+```
+{
+  name: "John",
+  age: 30
+}
+
+Press ENTER to continue... _
+```
+
+(After pressing ENTER, the program continues)
+
+### Custom message
 
 ```js
 await dp(data, { message: 'Check the data and press ENTER' });
 ```
 
-#### With timeout
+**Output:**
+```
+{
+  status: "processing",
+  step: 2
+}
+
+Check the data and press ENTER _
+```
+
+### With timeout
 
 ```js
 await dp(user, { timeout: 5000 });
-// Automatically continues after 5 seconds
 ```
 
-#### Without colors
+**Output:**
+```
+{
+  name: "John",
+  age: 30
+}
+
+Press ENTER to continue... _ (or continues after 5 seconds)
+```
+
+### Tree view
+
+```js
+const data = {
+  name: 'John',
+  address: { city: 'Lisbon' }
+};
+
+await dp(data, { view: 'tree' });
+```
+
+**Output:**
+```
+Object
+├── name: "John"
+└── address: Object
+    └── city: "Lisbon"
+
+Press ENTER to continue... _
+```
+
+### Table view
+
+```js
+const users = [
+  { name: 'Alice', age: 30 },
+  { name: 'Bob', age: 25 }
+];
+
+await dp(users, { view: 'table' });
+```
+
+**Output:**
+```
+name   | age
+───────┼─────
+Alice  | 30
+Bob    | 25
+
+Press ENTER to continue... _
+```
+
+### Without colors
 
 ```js
 await dp(user, { colors: false });
 ```
 
-## Combination with trace
+**Output (no ANSI codes):**
+```
+{
+  name: "John",
+  age: 30
+}
 
-To get the behavior of the former `dpp()`, combine `trace()` with `dp()`:
-
-```js
-trace('my-point');
-await dp(value);
+Press ENTER to continue... _
 ```
 
-Or with full stack:
+### Redirect to file
 
 ```js
-trace('my-point', { showStack: true });
+import { createWriteStream } from 'fs';
+const stream = createWriteStream('./debug.log');
+
+await dp(user, { stream });
+// Output is written to debug.log file
+// The pause message remains in the terminal
+```
+
+---
+
+## Combination with trace
+
+For debugging with stack trace before pausing:
+
+```js
+trace('checkpoint-before-pause');
 await dp(value);
 ```
 
@@ -86,41 +177,31 @@ In non-interactive environments (CI, GitHub Actions, production), the function *
 await dp(user); // Does not block in CI
 ```
 
-## Practical examples
-
-### Interactive debugging
-
-```js
-import { trace, dp } from 'dumpkit';
-
-async function processOrder(order) {
-  trace('order-received', { showStack: true });
-  await dp(order);
-  
-  const result = await api.process(order);
-  await dp(result, { message: 'Result obtained. Continue?' });
-  
-  return result;
+**Output in CI:**
+```
+{
+  name: "John",
+  age: 30
 }
+
+[dp] Non-interactive environment detected. Continuing automatically...
 ```
 
-### With timeout to prevent blocking
+---
 
+## Known Issues
+
+### Process does not exit naturally after `dp()`
+
+Currently, after the last `dp()` call, the process does not terminate on its own – you may need to press `Ctrl+C`. This will be fixed in a future release.
+
+**Workaround:**
 ```js
-await dp(data, { 
-  timeout: 10000,
-  message: 'Check the data. Continuing in 10s...' 
-});
+await dp(lastValue);
+process.exit(0);
 ```
 
-### Redirect to file
-
-```js
-import { createWriteStream } from 'fs';
-const stream = createWriteStream('./debug.log');
-
-await dp(user, { stream });
-```
+---
 
 ## Tips
 
@@ -128,3 +209,5 @@ await dp(user, { stream });
 - Combine with `trace()` to see where you are in the code
 - Set `timeout` to prevent blocking in production
 - Use `autoContinue: false` to force pause even in CI
+- Use `view: 'tree'` for nested structures
+- Use `view: 'table'` for arrays of objects

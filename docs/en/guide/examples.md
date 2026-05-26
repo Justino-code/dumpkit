@@ -23,6 +23,28 @@ const user = {
 dump(user);
 ```
 
+**Output (flat view):**
+```
+{
+  id: 1,
+  name: "John Smith",
+  email: "john@example.com",
+  profile: {
+    age: 30,
+    city: "Lisbon",
+    address: {
+      street: "Augusta Street",
+      zipCode: "1100-053"
+    }
+  },
+  interests: [
+    "programming",
+    "music",
+    "photography"
+  ]
+}
+```
+
 ### Map and Set
 
 ```js
@@ -45,17 +67,113 @@ const config = {
 dump(config);
 ```
 
-## Circular References
-
-dumpkit automatically handles objects that reference themselves:
+### Tree view
 
 ```js
-const person = { name: 'John' };
-const company = { name: 'TechCorp', owner: person };
-person.company = company;  // Circular reference!
+dump(config, { view: 'tree' });
+```
 
-dump(person);
-// Output: { name: "John", company: { name: "TechCorp", owner: [Circular *1] } }
+**Output:**
+```
+Object
+├── permissions: Map(2)
+│   ├── "admin" => Array(4)
+│   │   ├── "create"
+│   │   ├── "read"
+│   │   ├── "update"
+│   │   └── "delete"
+│   └── "user" => Array(1)
+│       └── "read"
+├── tags: Set(3)
+│   ├── "nodejs"
+│   ├── "debugging"
+│   └── "opensource"
+└── meta: Object
+    ├── version: "1.0.0"
+    └── environment: "development"
+```
+
+## Circular and Shared References
+
+`dumpkit` automatically detects both circular references and shared references.
+
+### Circular Reference
+
+Occurs when an object references itself, forming a cycle.
+
+```js
+const circular = { name: 'parent' };
+circular.self = circular;
+
+dump(circular);
+```
+
+**Output:**
+```
+{
+  name: "parent",
+  self: [Circular *1]
+}
+```
+
+### Shared Reference
+
+Occurs when the same object is referenced by multiple properties or objects.
+
+```js
+const shared = { name: 'shared', value: 42 };
+const data = {
+  first: shared,
+  second: shared,
+  third: shared
+};
+
+dump(data);
+```
+
+**Output:**
+```
+{
+  first: {
+    name: "shared",
+    value: 42
+  },
+  second: [Shared *1],
+  third: [Shared *1]
+}
+```
+
+> `[Circular *1]` indicates a circular reference (the object references itself).  
+> `[Shared *1]` indicates that the same object was already displayed earlier (in this case, in property `first`).
+
+### Mixed example
+
+```js
+const shared = { value: 42 };
+const circular = { name: 'circ' };
+circular.self = circular;
+
+const data = {
+  sharedA: shared,
+  sharedB: shared,
+  circular: circular
+};
+
+dump(data);
+```
+
+**Output:**
+```
+{
+  sharedA: {
+    value: 42
+  },
+  sharedB: [Shared *1],
+  circular: {
+    name: "circ",
+    self: [Circular *1]
+  }
+}
 ```
 
 ## Debugging with trace()
@@ -105,7 +223,8 @@ function sortLargeArray() {
   return arr.sort();
 }
 
-const sorted = measure('sort-large-array', () => sortLargeArray());
+const { result, measurement } = measure('sort-large-array', () => sortLargeArray());
+console.log(`Time: ${measurement.durationMs}ms`);
 ```
 
 ### Asynchronous operations
@@ -116,14 +235,15 @@ async function fetchUsers() {
   return response.json();
 }
 
-const users = await measure('fetch-users-api', () => fetchUsers());
+const { result, measurement } = await measure('fetch-users-api', () => fetchUsers());
+console.log(`Time: ${measurement.durationMs}ms`);
 ```
 
 ### Compare different approaches
 
 ```js
 // Approach 1: for loop
-measure('for-loop', () => {
+const { measurement: m1 } = measure('for-loop', () => {
   let sum = 0;
   for (let i = 0; i < 1000000; i++) {
     sum += i;
@@ -132,10 +252,12 @@ measure('for-loop', () => {
 });
 
 // Approach 2: reduce
-measure('array-reduce', () => {
+const { measurement: m2 } = measure('array-reduce', () => {
   const arr = Array.from({ length: 1000000 }, (_, i) => i);
   return arr.reduce((acc, val) => acc + val, 0);
 });
+
+console.log(`For-loop: ${m1.durationMs}ms, Reduce: ${m2.durationMs}ms`);
 ```
 
 ## Output Control
@@ -152,7 +274,34 @@ dump(object, { colors: false });
 const deepData = { a: { b: { c: { d: { e: 'very deep' } } } } };
 
 dump(deepData, { depth: 2 });
-// Output: { a: { b: [Object] } }
+```
+
+**Output:**
+```
+{
+  a: {
+    b: [Object]
+  }
+}
+```
+
+### Table view (array of objects)
+
+```js
+const users = [
+  { name: 'Alice', age: 30, city: 'Lisbon' },
+  { name: 'Bob', age: 25, city: 'Porto' }
+];
+
+dump(users, { view: 'table' });
+```
+
+**Output:**
+```
+name   | age | city
+───────┼─────┼───────
+Alice  | 30  | Lisbon
+Bob    | 25  | Porto
 ```
 
 ### Clean output for testing
@@ -164,6 +313,32 @@ import { inspect } from 'dumpkit';
 const result = complexFunction();
 const output = inspect(result, { colors: false });
 expect(output).toContain('expected-value');
+```
+
+## Interactive Pause with dp()
+
+```js
+import { dp } from 'dumpkit';
+
+async function debugProcess() {
+  const data = { step: 1, status: 'processing' };
+  await dp(data, { message: 'Check the data and press ENTER' });
+  
+  // After ENTER, continues
+  console.log('Process continuing...');
+}
+```
+
+## Programmatic Analysis with analyze()
+
+```js
+import { analyze } from 'dumpkit';
+
+const data = { name: 'John', age: 30 };
+const analysis = analyze(data);
+
+console.log(analysis.type);           // 'object'
+console.log(analysis.properties[0].key); // 'name'
 ```
 
 ## Integration with Logger
@@ -181,6 +356,12 @@ const state = {
 };
 
 writeFileSync('debug.json', inspect(state, { colors: false }));
+```
+
+### Send tree format to file
+
+```js
+writeFileSync('tree.txt', inspect(state, { view: 'tree', colors: false }));
 ```
 
 ### Express middleware
@@ -220,4 +401,15 @@ console.time('operation');
 measure('measured-operation', () => heavyOperation());
 console.timeEnd('operation');
 // Both methods work side by side
+```
+
+## Redirect output to file
+
+```js
+import { createWriteStream } from 'fs';
+const logStream = createWriteStream('./debug.log');
+
+dump(data, { stream: logStream });
+trace('checkpoint', { stream: logStream });
+await measure('query', () => db.query(sql), { stream: logStream });
 ```
