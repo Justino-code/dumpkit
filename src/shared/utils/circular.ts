@@ -1,97 +1,115 @@
 // src/shared/utils/circular.ts
 
 /**
- * Detects and tracks circular references in objects
+ * State of an object during traversal.
  */
-export class CircularDetector {
-  private objects = new WeakMap<object, { id: number; path: string }>();
-  private nextId = 1;
-  
-  /**
-   * Checks if an object has been seen before
-   */
-  has(obj: object): boolean {
-    return this.objects.has(obj);
-  }
-  
-  /**
-   * Registers a new object and returns its reference ID
-   */
-  add(obj: object, path: string): number {
-    const id = this.nextId++;
-    this.objects.set(obj, { id, path });
-    return id;
-  }
-  
-  /**
-   * Gets circular reference information for an object
-   */
-  get(obj: object, currentPath: string): { marker: string; refId: number; originalPath: string; currentPath: string } {
-    const info = this.objects.get(obj);
-    if (!info) {
-      throw new Error('Object not tracked by CircularDetector');
-    }
-    
-    return {
-      marker: `[Circular *${info.id}]`,
-      refId: info.id,
-      originalPath: info.path,
-      currentPath: currentPath,
-    };
-  }
-  
-  /**
-   * Resets the detector for a new inspection
-   */
-  reset(): void {
-    this.objects = new WeakMap();
-    this.nextId = 1;
-  }
-  
-  /**
-   * Gets the reference ID of an object if tracked
-   */
-  getRefId(obj: object): number | undefined {
-    return this.objects.get(obj)?.id;
-  }
-}
+type ObjectState = {
+  id: number;
+  path: string;      // path where it was first encountered
+};
 
 /**
- * Creates a simple circular reference detector function
+ * Detects circular and shared references during object traversal.
+ *
+ * - Circular: the same object appears again in the current traversal stack.
+ * - Shared: the same object is referenced from two different paths (non-circular).
  */
-export function createCircularDetector() {
-  let refs = new WeakMap<object, { id: number; path: string }>();
-  let nextRef = 1;
-  
-  return {
-    /**
-     * Checks if a value has been seen before
-     */
-    check<T>(value: T, currentPath: string): { isCircular: boolean; refId?: number; marker?: string; originalPath?: string } {
-      if (value && typeof value === 'object') {
-        const existing = refs.get(value as object);
-        if (existing) {
-          return {
-            isCircular: true,
-            refId: existing.id,
-            originalPath: existing.path,
-            marker: `[Circular *${existing.id}]`,
-          };
-        }
-        
-        refs.set(value as object, { id: nextRef, path: currentPath });
-        nextRef++;
-      }
-      
-      return { isCircular: false };
-    },
-    
-    /**
-     * Resets the detector
-     */
-    reset(): void {
-      refs = new WeakMap<object, { id: number; path: string }>();
-      nextRef = 1;
-    },
-  };
+export class CircularDetector {
+  // All objects ever visited (to detect sharing and assign unique IDs)
+  private visited = new WeakMap<object, ObjectState>();
+  // Stack of objects currently being processed (to detect cycles)
+  private stack: object[] = [];
+  private nextId = 1;
+
+  /**
+   * Called when entering an object during traversal.
+   * @param obj The object to process
+   * @param path Current path (e.g., 'root', 'user.address')
+   * @returns Information about the object's state
+   */
+  enter(obj: object, path: string): {
+    id: number;
+    isCircular: boolean;
+    isShared: boolean;
+    originalPath?: string;
+  } {
+    // 1. Check for circular (already in stack)
+    const stackIdx = this.stack.indexOf(obj);
+    if (stackIdx !== -1) {
+      const existing = this.visited.get(obj)!;
+      return {
+        id: existing.id,
+        isCircular: true,
+        isShared: false,
+        originalPath: existing.path,
+      };
+    }
+
+    // 2. Check for shared (already visited but not in stack)
+    const existing = this.visited.get(obj);
+    if (existing) {
+      return {
+        id: existing.id,
+        isCircular: false,
+        isShared: true,
+        originalPath: existing.path,
+      };
+    }
+
+    // 3. New object: assign ID and store
+    const id = this.nextId++;
+    const state: ObjectState = { id, path };
+    this.visited.set(obj, state);
+    this.stack.push(obj);
+    return {
+      id,
+      isCircular: false,
+      isShared: false,
+    };
+  }
+
+  /**
+   * Called when leaving an object after processing its children.
+   * @param obj The object to remove from the stack
+   */
+  leave(obj: object): void {
+    const idx = this.stack.lastIndexOf(obj);
+    if (idx !== -1) this.stack.splice(idx, 1);
+  }
+
+  /**
+   * Resets the detector for a new traversal.
+   */
+  reset(): void {
+    this.visited = new WeakMap();
+    this.stack = [];
+    this.nextId = 1;
+  }
+
+  /**
+   * Checks if an object has ever been visited (useful for testing).
+   */
+  has(obj: object): boolean {
+    return this.visited.has(obj);
+  }
+
+  /**
+   * Returns the unique ID of a previously visited object.
+   * @throws If object has not been visited
+   */
+  getRefId(obj: object): number {
+    const state = this.visited.get(obj);
+    if (!state) throw new Error('Object not tracked');
+    return state.id;
+  }
+
+  /**
+   * Returns the original path where the object was first encountered.
+   * @throws If object has not been visited
+   */
+  getOriginalPath(obj: object): string {
+    const state = this.visited.get(obj);
+    if (!state) throw new Error('Object not tracked');
+    return state.path;
+  }
 }

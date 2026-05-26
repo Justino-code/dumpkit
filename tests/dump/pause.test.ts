@@ -3,19 +3,23 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { dp } from '../../src/dump/pause';
 
+// Mock do readline antes de importar o módulo
+vi.mock('readline', () => ({
+  createInterface: vi.fn().mockReturnValue({
+    question: vi.fn((question: string, callback: () => void) => {
+      // Simula o callback do ENTER imediatamente
+      callback();
+    }),
+    close: vi.fn(),
+  }),
+}));
+
 describe('pause', () => {
   let stderrWriteSpy: any;
-  let stdinResumeSpy: any;
-  let stdinPauseSpy: any;
-  let stdinOnceSpy: any;
 
   beforeEach(() => {
     stderrWriteSpy = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
-    stdinResumeSpy = vi.spyOn(process.stdin, 'resume').mockImplementation(() => {});
-    stdinPauseSpy = vi.spyOn(process.stdin, 'pause').mockImplementation(() => {});
-    stdinOnceSpy = vi.spyOn(process.stdin, 'once').mockImplementation(() => {});
-    
-    // Mock TTY para testes interativos
+    // Mock TTY para testes
     Object.defineProperty(process.stdin, 'isTTY', { value: true, configurable: true });
     Object.defineProperty(process.stdout, 'isTTY', { value: true, configurable: true });
   });
@@ -29,13 +33,7 @@ describe('pause', () => {
   describe('dp', () => {
     it('should dump value and wait for user input', async () => {
       const value = { name: 'John', age: 30 };
-      
-      const promise = dp(value);
-      
-      const dataCallback = stdinOnceSpy.mock.calls.find(call => call[0] === 'data')?.[1];
-      if (dataCallback) dataCallback(Buffer.from('\n'));
-      
-      const result = await promise;
+      const result = await dp(value);
       
       expect(stderrWriteSpy).toHaveBeenCalled();
       expect(result).toBe(value);
@@ -55,12 +53,7 @@ describe('pause', () => {
       const value = { test: true };
       const message = 'Custom message: continue?';
       
-      const promise = dp(value, { message });
-      
-      const dataCallback = stdinOnceSpy.mock.calls.find(call => call[0] === 'data')?.[1];
-      if (dataCallback) dataCallback(Buffer.from('\n'));
-      
-      await promise;
+      await dp(value, { message });
       
       expect(stderrWriteSpy).toHaveBeenCalledWith(expect.stringContaining(message));
     });
@@ -68,6 +61,7 @@ describe('pause', () => {
     it('should respect timeout', async () => {
       const value = { test: true };
       
+      // Timeout curto: não deve demorar mais que 50ms
       await dp(value, { timeout: 10 });
       
       expect(true).toBe(true);
@@ -76,12 +70,7 @@ describe('pause', () => {
     it('should respect colors option', async () => {
       const value = { test: true };
       
-      const promise = dp(value, { colors: false });
-      
-      const dataCallback = stdinOnceSpy.mock.calls.find(call => call[0] === 'data')?.[1];
-      if (dataCallback) dataCallback(Buffer.from('\n'));
-      
-      await promise;
+      await dp(value, { colors: false });
       
       expect(stderrWriteSpy).toHaveBeenCalled();
     });
@@ -90,12 +79,7 @@ describe('pause', () => {
       const customStream = { write: vi.fn() } as unknown as NodeJS.WriteStream;
       const value = { test: true };
       
-      const promise = dp(value, { stream: customStream });
-      
-      const dataCallback = stdinOnceSpy.mock.calls.find(call => call[0] === 'data')?.[1];
-      if (dataCallback) dataCallback(Buffer.from('\n'));
-      
-      await promise;
+      await dp(value, { stream: customStream });
       
       expect(customStream.write).toHaveBeenCalled();
     });

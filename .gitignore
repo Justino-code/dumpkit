@@ -10,3 +10,4 @@ coverage/
 *.tgz
 *.zip
 *.gz
+demo.*

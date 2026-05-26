@@ -1,6 +1,7 @@
 // src/shared/types/options.ts
 
 export type InspectOptions = {
+  view?: 'flat' | 'tree' | 'table';
   /** Maximum nesting depth (default: 30) */
   depth?: number;
   
