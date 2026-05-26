@@ -19,19 +19,8 @@ import type { DumpOptions } from '../shared/types/options';
  * 
  */
 export function dump(value: unknown, options?: DumpOptions): unknown {
-  const analysis = inspect(value, options);
-  const view = options?.view || 'flat';
-  let output: string;
-  switch (view) {
-    case 'tree':
-      output = tree(analysis, options);
-      break;
-    case 'table':
-      output = table(analysis, options);
-      break;
-    default:
-      output = flat(analysis, options);
-  }
+  const output: string = inspect(value, options);
+
   writeToStream(output, options?.stream);
   return value;
 }

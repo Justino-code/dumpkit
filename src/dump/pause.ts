@@ -70,19 +70,8 @@ async function waitForUser(options?: PauseOptions): Promise<void> {
 }
 
 export async function dp(value: unknown, options?: PauseOptions): Promise<unknown> {
-  const analysis = inspect(value, options);
-  const view = options?.view || 'flat';
-  let output: string;
-  switch (view) {
-    case 'tree':
-      output = tree(analysis, options);
-      break;
-    case 'table':
-      output = table(analysis, options);
-      break;
-    default:
-      output = flat(analysis, options);
-  }
+  const output: string = inspect(value, options);
+  
   writeToStream(output, options?.stream);
   await waitForUser(options);
   return value;
