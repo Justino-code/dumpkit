@@ -13,7 +13,7 @@ e este projeto segue [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Deteção de referências partilhadas (`[Shared *N]`) além das circulares
 
 ### Alterado
-- `inspect()` agora retorna `AnalysisNode` (breaking change)
+- `inspect()` agora suporta múltiplas vistas (`flat`, `tree`, `table`) via opção `view`
 - `trace()` agora filtra frames internos da lib, mostrando apenas código do utilizador
 
 ### Removido

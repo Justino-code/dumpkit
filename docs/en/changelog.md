@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Shared reference detection (`[Shared *N]`) in addition to circular references
 
 ### Changed
-- `inspect()` now returns `AnalysisNode` (breaking change)
+- `inspect()` now supports multiple views (`flat`, `tree`, `table`) via `view` option
 - `trace()` now filters internal library frames, showing only user code
 
 ### Removed

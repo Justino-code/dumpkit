@@ -8,8 +8,9 @@ dumpkit is built on a simple principle:
 
 This means:
 
-- `inspect()` returns a string - pure, no side effects
+- `inspect()` returns a formatted string (supports multiple views: `flat`, `tree`, `table`) - pure, no side effects
 - `dump()` uses `inspect()` + writes to stderr
+- `analyze()` returns a rich data structure (`AnalysisNode`) for programmatic analysis
 - The same core can be reused for different outputs (terminal, HTTP, files)
 
 ## Zero Config
@@ -26,24 +27,30 @@ Every function does exactly what you expect:
 
 | Function | What it does |
 |----------|--------------|
-| `dump()` | Prints and continues |
+| `dump()` | Prints and continues (supports `flat`, `tree`, `table`) |
 | `dd()` | Prints and terminates the process |
-| `inspect()` | Returns formatted string |
+| `dp()` | Prints and pauses until ENTER |
+| `inspect()` | Returns formatted string (`flat`, `tree`, `table`) |
+| `analyze()` | Returns `AnalysisNode` (rich data structure) |
 | `trace()` | Shows where you are in the code |
 | `measure()` | Measures execution time |
 
 ## Why not just use console.log?
 
 | Feature | console.log | dumpkit |
-|---------|-------------|----------|
-| Pretty printing | ❌ | ✅ |
+|---------|-------------|---------|
+| Pretty formatting | ❌ | ✅ |
+| Multiple views (tree, table) | ❌ | ✅ |
+| Programmatic analysis | ❌ | ✅ (analyze) |
+| Interactive pause | ❌ | ✅ (dp) |
 | Circular references | 💥 Crash | ✅ Safe |
+| Shared references | ❌ | ✅ (`[Shared *N]`) |
 | Map/Set support | `Map(3)` | ✅ Full expansion |
 | Depth control | ❌ | ✅ |
 | Chaining | ❌ | ✅ (dump) |
 | Stack traces | ❌ | ✅ (trace) |
 | Timing | ❌ | ✅ (measure) |
-| Dump & die | ❌ | ✅ (dd) |
+| Dump and die | ❌ | ✅ (dd) |
 
 ## Extensibility
 
@@ -55,7 +62,7 @@ The clean separation allows anyone to build on top:
 import { inspect } from 'dumpkit';
 
 app.get('/debug/state', (req, res) => {
-  const state = inspect(app.state);
+  const state = inspect(app.state, { view: 'tree' });
   res.json({ debug: state });
 });
 ```
@@ -66,7 +73,17 @@ app.get('/debug/state', (req, res) => {
 import { inspect } from 'dumpkit';
 import { appendFile } from 'fs/promises';
 
-await appendFile('debug.log', inspect(data));
+await appendFile('debug.log', inspect(data, { view: 'flat', colors: false }));
+```
+
+### Example: Programmatic analysis
+
+```js
+import { analyze } from 'dumpkit';
+
+const analysis = analyze(data);
+console.log(`Type: ${analysis.type}`);
+console.log(`Properties: ${analysis.properties.length}`);
 ```
 
 ### Example: Debug middleware
@@ -88,4 +105,4 @@ dumpkit does one thing and does it well: **debugging**.
 - No distributed tracing (use OpenTelemetry for that)
 - No dashboards (use Datadog/NewRelic for that)
 
-But you can **combine** dumpkit with those tools - `inspect()` gives you the formatted string you can send anywhere.
+But you can **combine** dumpkit with those tools - `inspect()` gives you the formatted string you can send anywhere, and `analyze()` gives you the data structure for advanced processing.
