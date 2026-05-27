@@ -3,7 +3,6 @@
 import { inspect } from '../core/inspect';
 import { writeToStream } from './render';
 import type { DumpOptions } from '../shared/types/options';
-import * as readline from 'readline';
 
 export interface PauseOptions extends DumpOptions {
   /** Message to display (default: 'Press ENTER to continue...') */
@@ -27,43 +26,59 @@ async function waitForUser(options?: PauseOptions): Promise<void> {
     return;
   }
 
+  // For non-TTY or when stdin is not available, continue immediately
+  if (!isTTY) {
+    return;
+  }
+
   return new Promise((resolve) => {
     let timer: NodeJS.Timeout | undefined;
-    let didResolve = false;
-
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    });
+    let resolved = false;
 
     const cleanup = () => {
       if (timer) clearTimeout(timer);
-      rl.close();
+      if (process.stdin.isTTY) {
+        process.stdin.setRawMode?.(false);
+      }
+      process.stdin.removeAllListeners('data');
+      process.stdin.pause();
     };
 
-    const handleResolve = () => {
-      if (didResolve) return;
-      didResolve = true;
-      cleanup();
-      resolve();
+    const onData = (chunk: Buffer) => {
+      const input = chunk.toString();
+      // Check for ENTER (\\n, \\r\\n, or \\r)
+      if (input === '\n' || input === '\r\n' || input === '\r') {
+        if (!resolved) {
+          resolved = true;
+          cleanup();
+          resolve();
+        }
+      }
     };
 
-    const handleTimeout = () => {
-      if (didResolve) return;
-      didResolve = true;
-      const timeoutMsg = `\n[dp] Timeout (${timeout}ms). Continuing...\n`;
-      writeToStream(timeoutMsg, options?.stream);
-      cleanup();
-      resolve();
+    const onTimeout = () => {
+      if (!resolved) {
+        resolved = true;
+        const timeoutMsg = `\n[dp] Timeout (${timeout}ms). Continuing...\n`;
+        writeToStream(timeoutMsg, options?.stream);
+        cleanup();
+        resolve();
+      }
     };
 
     if (timeout > 0) {
-      timer = setTimeout(handleTimeout, timeout);
+      timer = setTimeout(onTimeout, timeout);
     }
 
-    rl.question(`${message} `, () => {
-      handleResolve();
-    });
+    // Setup stdin to capture ENTER
+    process.stdin.resume();
+    if (process.stdin.isTTY) {
+      process.stdin.setRawMode?.(true);
+    }
+    process.stdin.once('data', onData);
+
+    // Write the prompt
+    writeToStream(`\n${message} `, options?.stream);
   });
 }
 
@@ -75,9 +90,7 @@ async function waitForUser(options?: PauseOptions): Promise<void> {
  * @returns A promise that resolves with the original value when resumed
  */
 export async function dp(value: unknown, options?: PauseOptions): Promise<unknown> {
-  // Obter a análise e renderizar conforme a view (flat por padrão)
   const output = inspect(value, options);
-
   writeToStream(output, options?.stream);
   await waitForUser(options);
   return value;

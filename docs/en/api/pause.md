@@ -1,7 +1,5 @@
 # dp()
 
-> **⚠️ WARNING:** The `dp()` function currently prevents the process from terminating naturally after the last pause. You may need to press `Ctrl+C` to exit. This issue will be fixed in a future release. As a workaround, you can call `process.exit(0)` after the last `dp()` call.
-
 Pauses program execution for interactive inspection.
 
 ---
@@ -189,19 +187,42 @@ await dp(user); // Does not block in CI
 
 ---
 
-## Known Issues
+## Best practices
 
-### Process does not exit naturally after `dp()`
+### Sequential usage
 
-Currently, after the last `dp()` call, the process does not terminate on its own – you may need to press `Ctrl+C`. This will be fixed in a future release.
+The `dp()` function uses the process `stdin`. Therefore, **it must be used sequentially**, never in parallel.
 
-**Workaround:**
+**✅ Correct (sequential):**
+
 ```js
-await dp(lastValue);
-process.exit(0);
+async function debugSequential() {
+  await dp(step1);
+  await dp(step2);
+  await dp(step3);
+}
 ```
 
----
+**❌ Incorrect (parallel):**
+
+```js
+// This can cause stdin conflicts
+Promise.all([
+  dp(step1),
+  dp(step2),
+  dp(step3)
+]);
+```
+
+### Timeout
+
+Each `dp()` has its own independent timeout:
+
+```js
+// The first timeout does not affect the second
+await dp(data1, { timeout: 2000 });
+await dp(data2); // waits for ENTER normally
+```
 
 ## Tips
 
