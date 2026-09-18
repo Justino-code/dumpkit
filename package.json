@@ -1,45 +1,56 @@
 {
   "name": "dumpkit",
   "version": "0.2.0",
-  "type": "module",
   "description": "Debugging library for Node.js inspired by Laravel's dump() and dd()",
-  "main": "dist/index.js",
-  
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/justino-code/dumpkit.git"
-  },
-  "bugs": {
-    "url": "https://github.com/justino-code/dumpkit/issues"
-  },
-  "homepage": "https://github.com/justino-code/dumpkit#readme",
+  "type": "module",
 
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.mjs"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     }
   },
+
   "files": [
     "dist",
     "README.md",
     "LICENSE",
     "CHANGELOG.md"
   ],
+
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/justino-code/dumpkit.git"
+  },
+
+  "bugs": {
+    "url": "https://github.com/justino-code/dumpkit/issues"
+  },
+
+  "homepage": "https://github.com/justino-code/dumpkit#readme",
+
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts --clean",
-    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "build": "tsup",
+    "dev": "tsup --watch",
+
+    "typecheck": "tsc --noEmit",
+
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
+
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
-    "prepublishOnly": "yarn build"
+
+    "prepublishOnly": "npm run build"
   },
+
   "keywords": [
     "debug",
     "dump",
@@ -51,8 +62,14 @@
     "development",
     "typescript"
   ],
+
   "author": "Justino Contingo",
   "license": "MIT",
+
+  "engines": {
+    "node": ">=22.0.0"
+  },
+
   "devDependencies": {
     "@types/node": "^20.0.0",
     "@vitest/coverage-v8": "^1.0.0",
@@ -60,9 +77,5 @@
     "typescript": "^5.0.0",
     "vitepress": "^1.6.4",
     "vitest": "^1.0.0"
-  },
-  "engines": {
-    "node": ">=22.0.0"
-  },
-  "dependencies": {}
+  }
 }
